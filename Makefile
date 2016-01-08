@@ -16,13 +16,15 @@ TOOLS=tapeify
 
 all: $(TOOLS) $(TARGETS)
 
-%.obj: %.asm
-	$(AS0) $< -b l
+%.s19: %.asm
+	$(AS0) $< -l
 
-%.cas: %.obj
-	$(TAPEIFY) $< $$(echo $< | cut -f1 -d. | tr [:lower:] [:upper:]) \
-		$(LOAD) $(SIZE) $(EXEC)
-	mv $$(echo $< | cut -f1 -d. | tr [:lower:] [:upper:]) $@
+%.ram: %.s19
+	objcopy -I srec -O binary $< $@
+
+%.cas: %.ram
+	$(TAPEIFY) $< $@ $$(echo $< | cut -f1 -d. | tr [:lower:] [:upper:]) \
+		$(LOAD) $(EXEC)
 
 %.wav: %.cas
 	$(CAS2WAV) $< $@

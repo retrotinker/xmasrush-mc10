@@ -1,3 +1,5 @@
 tapeify
+*.s19
+*.ram
 *.cas
 *.wav
