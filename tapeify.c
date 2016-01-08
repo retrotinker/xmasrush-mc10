@@ -6,6 +6,9 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <ctype.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 static uint8_t checksum;
 static int infd, outfd;
@@ -122,16 +125,16 @@ static uint16_t check_addr(const char *p) {
 }
 
 int main(int argc, const char *argv[]) {
+  struct stat stats;
   uint16_t load, start, wlen;
   int len;
 
   if (argc != 6) {
-    fprintf(stderr, "%s: binary cassette load len start\n", argv[0]);
+    fprintf(stderr, "%s: binary cassette name load start\n", argv[0]);
     exit(1);
   }
   
-  load = check_addr(argv[3]);
-  wlen = check_addr(argv[4]);
+  load = check_addr(argv[4]);
   start = check_addr(argv[5]);
 
   infd = open(argv[1], O_RDONLY, 0666);
@@ -139,6 +142,11 @@ int main(int argc, const char *argv[]) {
     perror(argv[1]);
     exit(1);
   }
+  if (fstat(infd, &stats)) {
+    perror("fstat");
+    exit(1);
+  }
+  wlen = stats.st_size;
   outfd = open(argv[2], O_WRONLY|O_CREAT|O_TRUNC, 0666);
   if (outfd == -1) {
     perror(argv[2]);
@@ -149,16 +157,13 @@ int main(int argc, const char *argv[]) {
     perror("read");
     exit(1);
   }
-  if (len != 65536) {
-    fprintf(stderr, "%s: not an as1 memory image\n", argv[1]);
-    exit(1);
-  }
   close(infd);
   output_preamble();
-  header_block(argv[2], load, start);
+  header_block(argv[3], load, start);
   output_preamble();
-  program_blocks(buffer + load, wlen);
+  program_blocks(buffer, wlen);
   end_block();
+  output_preamble();
   close(outfd);
   return 0;
 }
