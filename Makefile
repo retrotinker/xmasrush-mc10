@@ -11,7 +11,7 @@ CAS2WAV=/home/linville/coco/cas2wav.pl
 
 CFLAGS=-Wall
 
-TARGETS=xmasrush.wav
+TARGETS=xmasrush.cas xmasrush.wav
 TOOLS=tapeify
 
 all: $(TOOLS) $(TARGETS)
