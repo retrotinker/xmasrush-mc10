@@ -36,8 +36,10 @@ CTSTBAS	equ	$41a6
 #BRSTBAS	equ	(TXTBASE+14*32+8)
 BRSTBAS	equ	$41c8
 
-JS1BASE	equ	(TXTBASE+6*32+1)
-JS2BASE	equ	(TXTBASE+8*32+5)
+#JS1BASE	equ	(TXTBASE+6*32+1)
+JS1BASE	equ	$40c1
+#JS2BASE	equ	(TXTBASE+8*32+5)
+JS2BASE	equ	$4105
 
 #PLAYPOS	equ	(TXTBASE+(9*32)+24)
 PLAYPOS	equ	$4138
@@ -74,7 +76,15 @@ restart	ldd	#$400
 
 	bra	restart
 
-restrt1	jsr	instscn
+restrt1	ldaa	atmpcnt		bump attempts counter
+	adda	#$01
+	daa
+	bcc	restrt2
+	jsr	jokescn
+	bra	restart
+restrt2	staa	atmpcnt
+
+	jsr	instscn
 
 	jmp	exit
 
@@ -280,6 +290,66 @@ tlykyex	ins
 	rts
 
 *
+* Chide player into resetting statistics
+*
+jokescn	jsr	txtinit		setup text screen
+
+	jsr	clrtscn		clear text screen
+
+	ldx	#jokstr1
+	pshx
+	ldx	#JS1BASE
+	pshx
+	jsr	drawstr
+	pulx
+	pulx
+
+	ldx	#jokstr2
+	pshx
+	ldx	#JS2BASE
+	pshx
+	jsr	drawstr
+	pulx
+	pulx
+
+	ldaa	#$80		setup counter for 128 frames
+	psha
+jkstimr	ldd     TIMER		setup timer for ~1 frame duration
+        addd    #14915
+        pshb
+        psha
+        pulx
+        ldab    TCSR
+        stx     TOCR
+
+jkskylp	ldaa	#$fb		check for BREAK
+	staa	P1DATA
+	ldaa	P2DATA
+	anda	#$02
+	bne	jkskyl1
+	jmp	exit
+
+jkskyl1	ldaa	#$7f		check for SPACEBAR
+	staa	P1DATA
+	ldaa	KVSPRT
+	anda	#$08
+	beq	jkskyex
+
+	ldab    TCSR		check for timer expiry
+	andb    #$40
+	beq     jkskylp
+	tsx
+	dec     ,x
+	bne     jkstimr
+
+jkskyex	ldaa	KVSPRT
+	anda	#$08
+	beq	jkskyex
+	ins
+	rts
+
+
+*
 * Show instruction screen
 *
 instscn	jsr	txtinit		setup text screen
@@ -420,6 +490,15 @@ exit	ldx	savestk
 	pulb
 	pulx
 	rts
+
+*
+* Joke screen data
+*
+jokstr1	fcb	$39,$39,$20,$14,$12,$09,$05,$13,$20,$09,$13,$20,$05,$0e,$0f,$15
+	fcb	$07,$08,$20,$06,$0f,$12,$20,$01,$0e,$19,$0f,$0e,$05,$21,$00
+
+jokstr2	fcb	$14,$09,$0d,$05,$20,$06,$0f,$12,$20,$01,$20,$0e,$05,$17,$20,$10
+	fcb	$0c,$01,$19,$05,$12,$3f,$00
 
 *
 * Intro screen data
