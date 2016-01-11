@@ -171,9 +171,9 @@ talyscn	jsr	txtinit		setup text screen
 
 	ldx	#atmpstr
 	pshx
-        ldx	#ATSTBAS
+	ldx	#ATSTBAS
 	pshx
-        jsr	drawstr
+	jsr	drawstr
 	pulx
 	pulx
 
@@ -183,9 +183,9 @@ talyscn	jsr	txtinit		setup text screen
 
 	ldx	#seizstr
 	pshx
-        ldx	#SZSTBAS
+	ldx	#SZSTBAS
 	pshx
-        jsr	drawstr
+	jsr	drawstr
 	pulx
 	pulx
 
@@ -195,9 +195,9 @@ talyscn	jsr	txtinit		setup text screen
 
 	ldx	#escpstr
 	pshx
-        ldx	#ESSTBAS
+	ldx	#ESSTBAS
 	pshx
-        jsr	drawstr
+	jsr	drawstr
 	pulx
 	pulx
 
@@ -207,17 +207,17 @@ talyscn	jsr	txtinit		setup text screen
 
 	ldx	#ctlstr
 	pshx
-        ldx	#CTSTBAS
+	ldx	#CTSTBAS
 	pshx
-        jsr	drawstr
+	jsr	drawstr
 	pulx
 	pulx
 
 	ldx	#brkstr
 	pshx
-        ldx	#BRSTBAS
+	ldx	#BRSTBAS
 	pshx
-        jsr	drawstr
+	jsr	drawstr
 	pulx
 	pulx
 
