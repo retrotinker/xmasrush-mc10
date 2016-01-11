@@ -179,117 +179,6 @@ intkyex	ins
 	rts
 
 *
-* Show tally screen
-*
-talyscn	jsr	txtinit		setup text screen
-
-	jsr	clrtscn		clear text screen
-
-	ldx	#atmpstr
-	pshx
-	ldx	#ATSTBAS
-	pshx
-	jsr	drawstr
-	pulx
-	pulx
-
-	ldx	#ATSTBAS+10
-	ldaa	atmpcnt
-	jsr	bcdshow
-
-	ldx	#seizstr
-	pshx
-	ldx	#SZSTBAS
-	pshx
-	jsr	drawstr
-	pulx
-	pulx
-
-	ldx	#SZSTBAS+10
-	ldaa	seizcnt
-	jsr	bcdshow
-
-	ldx	#escpstr
-	pshx
-	ldx	#ESSTBAS
-	pshx
-	jsr	drawstr
-	pulx
-	pulx
-
-	ldx	#ESSTBAS+9
-	ldaa	escpcnt
-	jsr	bcdshow
-
-	ldx	#ctlstr
-	pshx
-	ldx	#CTSTBAS
-	pshx
-	jsr	drawstr
-	pulx
-	pulx
-
-	ldx	#brkstr
-	pshx
-	ldx	#BRSTBAS
-	pshx
-	jsr	drawstr
-	pulx
-	pulx
-
-	ldaa	#$20		setup counter for 30 frames
-	psha
-tlytimr	ldd     TIMER		setup timer for ~1 frame duration
-        addd    #14915
-        pshb
-        psha
-        pulx
-        ldab    TCSR
-        stx     TOCR
-
-tlykylp	ldaa	#$fb		check for BREAK
-	staa	P1DATA
-	ldaa	P2DATA
-	anda	#$02
-	bne	tlykyl1
-	jmp	exit
-
-tlykyl1	ldaa	#$7f		check for SPACEBAR
-	staa	P1DATA
-	ldaa	KVSPRT
-	anda	#$08
-	beq	tlykypr
-
-	ldab    TCSR		check for timer expiry
-	andb    #$40
-	beq     tlykylp
-	tsx
-	dec     ,x
-	bne     tlykyl2
-
-	tsx			restore counter for 30 more frames
-	ldaa    #$20
-	staa    ,x
-
-tlykyl2	dec	4,x
-	bne	tlytimr
-	ldaa	3,x
-	beq	tlykyto
-	deca
-	staa	3,x
-	bra	tlytimr
-
-tlykyto	clc
-	bra	tlykyex
-
-tlykypr	ldaa	KVSPRT
-	anda	#$08
-	beq	tlykypr
-	sec
-tlykyex	ins
-	rts
-
-*
 * Chide player into resetting statistics
 *
 jokescn	jsr	txtinit		setup text screen
@@ -422,6 +311,117 @@ inskyex	ldaa	KVSPRT
 	anda	#$08
 	beq	inskyex
 	ins
+	rts
+
+*
+* Show tally screen
+*
+talyscn	jsr	txtinit		setup text screen
+
+	jsr	clrtscn		clear text screen
+
+	ldx	#atmpstr
+	pshx
+	ldx	#ATSTBAS
+	pshx
+	jsr	drawstr
+	pulx
+	pulx
+
+	ldx	#ATSTBAS+10
+	ldaa	atmpcnt
+	jsr	bcdshow
+
+	ldx	#seizstr
+	pshx
+	ldx	#SZSTBAS
+	pshx
+	jsr	drawstr
+	pulx
+	pulx
+
+	ldx	#SZSTBAS+10
+	ldaa	seizcnt
+	jsr	bcdshow
+
+	ldx	#escpstr
+	pshx
+	ldx	#ESSTBAS
+	pshx
+	jsr	drawstr
+	pulx
+	pulx
+
+	ldx	#ESSTBAS+9
+	ldaa	escpcnt
+	jsr	bcdshow
+
+	ldx	#ctlstr
+	pshx
+	ldx	#CTSTBAS
+	pshx
+	jsr	drawstr
+	pulx
+	pulx
+
+	ldx	#brkstr
+	pshx
+	ldx	#BRSTBAS
+	pshx
+	jsr	drawstr
+	pulx
+	pulx
+
+	ldaa	#$20		setup counter for 30 frames
+	psha
+tlytimr	ldd     TIMER		setup timer for ~1 frame duration
+        addd    #14915
+        pshb
+        psha
+        pulx
+        ldab    TCSR
+        stx     TOCR
+
+tlykylp	ldaa	#$fb		check for BREAK
+	staa	P1DATA
+	ldaa	P2DATA
+	anda	#$02
+	bne	tlykyl1
+	jmp	exit
+
+tlykyl1	ldaa	#$7f		check for SPACEBAR
+	staa	P1DATA
+	ldaa	KVSPRT
+	anda	#$08
+	beq	tlykypr
+
+	ldab    TCSR		check for timer expiry
+	andb    #$40
+	beq     tlykylp
+	tsx
+	dec     ,x
+	bne     tlykyl2
+
+	tsx			restore counter for 30 more frames
+	ldaa    #$20
+	staa    ,x
+
+tlykyl2	dec	4,x
+	bne	tlytimr
+	ldaa	3,x
+	beq	tlykyto
+	deca
+	staa	3,x
+	bra	tlytimr
+
+tlykyto	clc
+	bra	tlykyex
+
+tlykypr	ldaa	KVSPRT
+	anda	#$08
+	beq	tlykypr
+	sec
+tlykyex	ins
 	rts
 
 *
