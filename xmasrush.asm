@@ -16,10 +16,14 @@ KVSPRT  equ     $bfff
 TXTBASE	equ	$4000			memory map-related definitions
 TXTEND	equ	$4200
 
-IS1BASE	equ	(TXTBASE+5*32+3)	string display location info
-IS2BASE	equ	(TXTBASE+6*32+3)
-IS3BASE	equ	(TXTBASE+7*32+3)
-IS4BASE	equ	(TXTBASE+10*32+10)
+#IS1BASE	equ	(TXTBASE+5*32+3)	string display location info
+IS1BASE	equ	$40a3
+#IS2BASE	equ	(TXTBASE+6*32+3)
+IS2BASE	equ	$40c3
+#IS3BASE	equ	(TXTBASE+7*32+3)
+IS3BASE	equ	$40e3
+#IS4BASE	equ	(TXTBASE+10*32+10)
+IS4BASE	equ	$414a
 
 #ATSTBAS	equ	(TXTBASE+4*32+10)
 ATSTBAS	equ	$408a
@@ -70,7 +74,9 @@ restart	ldd	#$400
 
 	bra	restart
 
-restrt1	jmp	exit
+restrt1	jsr	instscn
+
+	jmp	exit
 
 *
 * Show intro screen
@@ -274,6 +280,81 @@ tlykyex	ins
 	rts
 
 *
+* Show instruction screen
+*
+instscn	jsr	txtinit		setup text screen
+
+	jsr	clrtscn		clear text screen
+
+	ldx	#instrs1
+	pshx
+	ldx	#IS1BASE
+	pshx
+	jsr	drawstr
+	pulx
+	pulx
+
+	ldx	#instrs2
+	pshx
+	ldx	#IS2BASE
+	pshx
+	jsr	drawstr
+	pulx
+	pulx
+
+	ldx	#instrs3
+	pshx
+	ldx	#IS3BASE
+	pshx
+	jsr	drawstr
+	pulx
+	pulx
+
+	ldx	#instrs4
+	pshx
+	ldx	#IS4BASE
+	pshx
+	jsr	drawstr
+	pulx
+	pulx
+
+	ldaa	#$80		setup counter for 128 frames
+	psha
+instimr	ldd     TIMER		setup timer for ~1 frame duration
+        addd    #14915
+        pshb
+        psha
+        pulx
+        ldab    TCSR
+        stx     TOCR
+
+inskylp	ldaa	#$fb		check for BREAK
+	staa	P1DATA
+	ldaa	P2DATA
+	anda	#$02
+	bne	inskyl1
+	jmp	exit
+
+inskyl1	ldaa	#$7f		check for SPACEBAR
+	staa	P1DATA
+	ldaa	KVSPRT
+	anda	#$08
+	beq	inskyex
+
+	ldab    TCSR		check for timer expiry
+	andb    #$40
+	beq     inskylp
+	tsx
+	dec     ,x
+	bne     instimr
+
+inskyex	ldaa	KVSPRT
+	anda	#$08
+	beq	inskyex
+	ins
+	rts
+
+*
 * txtinit -- setup text screen
 *
 txtinit	clr	KVSPRT
@@ -377,6 +458,20 @@ intscrn	fcb	$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80
 	fcb	$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80
 	fcb	$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80
 	fcb	$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80
+
+*
+* Instruction screen data
+*
+instrs1	fcb	$05,$0e,$14,$05,$12,$20,$14,$08,$05,$20,$06,$0f,$12,$05,$13,$14
+	fcb	$2c,$00
+
+instrs2	fcb	$13,$05,$09,$1a,$05,$20,$14,$08,$05,$20,$0c,$01,$13,$14,$20,$18,$0d
+	fcb	$01,$13,$20,$14,$12,$05,$05,$2c,$00
+
+instrs3	fcb	$05,$13,$03,$01,$10,$05,$20,$14,$08,$05,$20,$05,$16,$09,$0c,$20
+	fcb	$13,$0e,$0f,$17,$0d,$05,$0e,$2e,$2e,$2e,$00
+
+instrs4	fcb	$03,$01,$12,$10,$05,$20,$01,$12,$02,$0f,$12,$05,$13,$21,$00
 
 *
 * Tally screen data
