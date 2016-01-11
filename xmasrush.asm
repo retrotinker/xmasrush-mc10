@@ -155,7 +155,10 @@ intkyl2	dec	4,x
 intkyto	clc
 	bra	intkyex
 
-intkypr	sec
+intkypr	ldaa	KVSPRT
+	anda	#$08
+	beq	intkypr
+	sec
 intkyex	ins
 	rts
 
@@ -263,7 +266,10 @@ tlykyl2	dec	4,x
 tlykyto	clc
 	bra	tlykyex
 
-tlykypr	sec
+tlykypr	ldaa	KVSPRT
+	anda	#$08
+	beq	tlykypr
+	sec
 tlykyex	ins
 	rts
 
