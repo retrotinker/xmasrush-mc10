@@ -4,16 +4,16 @@
 LOAD	equ	$4c00
 START	equ	LOAD
 
-P1DATA  equ     $0002
-P2DATA  equ     $0003
+P1DATA	equ	$0002
+P2DATA	equ	$0003
 
-TCSR    equ     $0008
-TIMER   equ     $0009
-TOCR    equ     $000b
+TCSR	equ	$0008
+TIMER	equ	$0009
+TOCR	equ	$000b
 
-KVSPRT  equ     $bfff
+KVSPRT	equ	$bfff
 
-TXTBASE	equ	$4000			memory map-related definitions
+TXTBASE	equ	$4000				memory map-related definitions
 TXTEND	equ	$4200
 
 #IS1BASE	equ	(TXTBASE+5*32+3)	string display location info
@@ -246,7 +246,6 @@ jkskyex	ldaa	KVSPRT
 	beq	jkskyex
 	ins
 	rts
-
 
 *
 * Show instruction screen
