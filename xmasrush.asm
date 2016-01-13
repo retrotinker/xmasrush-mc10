@@ -86,6 +86,8 @@ restrt2	staa	atmpcnt
 
 	jsr	cg3init
 
+	jsr	plfdraw
+
 	ldd	#$1511		point to grid offset for xmas tree start
 	ldx	#xmstree
 	jsr	tiledrw
@@ -527,6 +529,62 @@ bcdshow	psha
 	rts
 
 *
+* plfdraw -- draw playfield based on plyfmap data
+*
+*	D,X clobbered
+*
+plfdraw	ldx	#plyfmap	init map pointer value
+	clra			init x- and y- coordinates
+	clrb
+	pshb
+	psha
+	ldaa	#$04		init map byte width counter
+	psha
+	ldaa	#plyfmsz	init map size counter
+	psha
+	pshx
+
+plfloop	pulx			load next byte of map data
+	ldaa	,x
+	inx
+	pshx
+	ldab	#$08		init bit counter for current byte
+plfloo1	asla			check for tile indicator
+	bcc	plftskp
+
+	pshb			save important data
+	psha
+	tsx			retrieve current x- and y-pos
+	ldd	6,x
+	ldx	#bartree	point to data for bare tree
+	jsr	tiledrw		draw bare tree tile
+	pula			restore important data
+	pulb
+
+plftskp	tsx			advance x-pos
+	inc	4,x
+
+	decb			decrement bit counter
+	bne	plfloo1		process data for next bit
+
+	dec	3,x		check for end of map row
+	bne	plflxck		if not move along
+
+	ldaa	#$04		reset map byte width counter
+	staa	3,x
+
+	clr	4,x		reset x-pos
+	inc	5,x		advance y-pos
+
+plflxck	dec	2,x		check for end of map data
+	bne	plfloop		if not, loop
+
+	ldab	#$06		clean-up stack
+	abx
+	txs
+	rts
+
+*
 * tiledrw -- draw background tile
 *
 *	D -- x- and y-coordinate (in A and B)
@@ -657,6 +715,47 @@ player	fcb	%00000010,%00000000
 	fcb	%00000010,%00000000
 	fcb	%00001000,%10000000
 	fcb	%00101000,%10100000
+
+plyfmap	fcb	%10101010,%10101010,%10101010,%10101010
+	fcb	%00000000,%00000000,%00000000,%00000000
+	fcb	%01010100,%00000000,%00000000,%01010100
+	fcb	%00000000,%00000000,%00000000,%00000000
+
+	fcb	%10100000,%00000000,%01000000,%00001010
+	fcb	%00000000,%00000000,%00000000,%00000000
+	fcb	%01000000,%00100001,%00010000,%00000100
+	fcb	%00000000,%10000000,%01000100,%00000000
+
+	fcb	%10000000,%00000000,%00010001,%01000010
+	fcb	%00000001,%01000000,%01000100,%00000000
+	fcb	%01000100,%00010000,%00010000,%00000100
+	fcb	%00000001,%01000000,%00000000,%00000000
+
+	fcb	%10000000,%00010000,%00000000,%00000010
+	fcb	%00000000,%01000000,%00000000,%00000000
+	fcb	%01000000,%00000000,%00000000,%00000100
+	fcb	%00000000,%00000000,%00000000,%00000000
+
+	fcb	%10000000,%00000000,%00000000,%00000010
+	fcb	%00000000,%00000000,%00000000,%00000000
+	fcb	%01000000,%10000000,%00100000,%10000100
+	fcb	%00000010,%00100000,%00000000,%00000000
+
+	fcb	%10000000,%10001000,%00001000,%10000010
+	fcb	%00000010,%00100000,%00000000,%00000000
+	fcb	%01000000,%10000100,%00000101,%00000100
+	fcb	%00000010,%00000000,%00000000,%00000000
+
+	fcb	%10000000,%10000000,%00000010,%00000010
+	fcb	%00000000,%00000000,%00000000,%00000000
+	fcb	%01000000,%00000000,%00000000,%00010100
+	fcb	%00000000,%00000000,%00000000,%00000000
+
+	fcb	%10100000,%00000000,%00000000,%00101010
+	fcb	%00000000,%00000000,%00000000,%00000000
+	fcb	%01010101,%01000000,%00000101,%01010100
+	fcb	%00000000,%00000000,%00000000,%00000000
+plyfmsz	equ	*-plyfmap
 
 *
 * Joke screen data
