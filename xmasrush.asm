@@ -13,6 +13,8 @@ TOCR	equ	$000b
 
 KVSPRT	equ	$bfff
 
+RESET	equ	$fffe
+
 TXTBASE	equ	$4000				memory map-related definitions
 TXTEND	equ	$4200
 VBASE	equ	$4000
@@ -47,14 +49,6 @@ JS2BASE	equ	$4105
 PLAYPOS	equ	$4138
 
 	org	START
-
-	pshx			save state for exit to Micro Color BASIC
-	pshb
-	psha
-	tpa
-	psha
-	tsx
-	stx	savestk
 
 	clr	atmpcnt		clear results tallies
 	clr	seizcnt
@@ -630,14 +624,8 @@ cvtpos	pshb
 *
 * Exit to Micro Color BASIC
 *
-exit	ldx	savestk
-	txs
-	pula
-	tap
-	pula
-	pulb
-	pulx
-	rts
+exit	ldx	RESET
+	jmp	,x
 
 *
 * Data Declarations
@@ -745,11 +733,6 @@ ctlstr	fcb	$43,$4f,$4e,$54,$52,$4f,$4c,$20,$06,$0f,$12,$20,$0e,$05,$17,$20
 
 brkstr	fcb	$42,$52,$45,$41,$4b,$20,$14,$0f,$20,$05,$0e,$04,$20,$07,$01,$0d
 	fcb	$05,$00
-
-*
-* Data declarations
-*
-savestk	rmb	2
 
 atmpcnt	rmb	1
 seizcnt	rmb	1
