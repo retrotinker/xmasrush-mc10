@@ -15,6 +15,8 @@ KVSPRT	equ	$bfff
 
 TXTBASE	equ	$4000				memory map-related definitions
 TXTEND	equ	$4200
+VBASE	equ	$4000
+VSIZE	equ	$0c00
 
 #IS1BASE	equ	(TXTBASE+5*32+3)	string display location info
 IS1BASE	equ	$40a3
@@ -89,6 +91,26 @@ restrt2	staa	atmpcnt
 	jsr	clrscrn
 
 	jsr	cg3init
+
+	ldd	#$1511		point to grid offset for xmas tree start
+	ldx	#xmstree
+	jsr	tiledrw
+
+	ldd	#$0703		point to grid offset for snowman 1 start
+	ldx	#snowman
+	jsr	tiledrw
+
+	ldd	#$0e0b		point to grid offset for snowman 2 start
+	ldx	#snowman
+	jsr	tiledrw
+
+	ldd	#$190d		point to grid offset for snowman 3 start
+	ldx	#snowman
+	jsr	tiledrw
+
+	ldd	#$0b18		point to grid offset for snowman 4 start
+	ldx	#snowman
+	jsr	tiledrw
 
 brkchck	ldaa	#$fb		check for BREAK
 	staa	P1DATA
@@ -511,6 +533,101 @@ bcdshow	psha
 	rts
 
 *
+* tiledrw -- draw background tile
+*
+*	D -- x- and y-coordinate (in A and B)
+*	X -- pointer to tile data
+*
+*	D,X clobbered
+*
+tiledrw	pshx
+	jsr	cvtpos
+	addd	#VBASE
+	pshb
+	psha
+	tsx
+
+	ldx	2,x
+	ldd	,x
+	tsx
+	pulx
+	std	,x
+
+	ldab	#$20
+	abx
+	pshx
+
+	tsx
+	ldx	2,x
+	ldd	2,x
+	pulx
+	std	,x
+
+	ldab	#$20
+	abx
+	pshx
+
+	tsx
+	ldx	2,x
+	ldd	4,x
+	pulx
+	std	,x
+
+	ldab	#$20
+	abx
+	pshx
+
+	tsx
+	ldx	2,x
+	ldd	6,x
+	pulx
+	std	,x
+
+	ldab	#$20
+	abx
+	pshx
+
+	tsx
+	ldx	2,x
+	ldd	8,x
+	pulx
+	std	,x
+
+	ldab	#$20
+	abx
+	pshx
+
+	tsx
+	ldx	2,x
+	ldd	10,x
+	pulx
+	std	,x
+
+	pula
+	pulb
+	rts
+
+*
+* cvtpos -- convert grid position to screen offset
+*
+*	D -- x- and y-coordinate (in A and B)
+*
+cvtpos	pshb
+	psha
+	tsx
+	tba
+	ldab	,x
+	clrb
+	lsrd
+	adda	1,x
+	lsrd
+	lsrd
+	orab	,x
+	ins
+	ins
+	rts
+
+*
 * Exit to Micro Color BASIC
 *
 exit	ldx	savestk
@@ -521,6 +638,37 @@ exit	ldx	savestk
 	pulb
 	pulx
 	rts
+
+*
+* Data Declarations
+*
+snowman	fcb	$05,$40
+	fcb	$19,$90
+	fcb	$15,$50
+	fcb	$56,$94
+	fcb	$59,$64
+	fcb	$15,$50
+
+xmstree	fcb	$01,$00
+	fcb	$05,$40
+	fcb	$15,$50
+	fcb	$55,$54
+	fcb	$03,$00
+	fcb	$03,$00
+
+bartree	fcb	$00,$80
+	fcb	$83,$00
+	fcb	$3B,$F8
+	fcb	$0E,$00
+	fcb	$0B,$00
+	fcb	$0E,$00
+
+player	fcb	%00000010,%00000000
+	fcb	%00101010,%10100000
+	fcb	%00100010,%00100000
+	fcb	%00000010,%00000000
+	fcb	%00001000,%10000000
+	fcb	%00101000,%10100000
 
 *
 * Joke screen data
