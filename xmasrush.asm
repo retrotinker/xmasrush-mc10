@@ -88,6 +88,10 @@ restrt2	staa	atmpcnt
 
 	jsr	plfdraw
 
+	ldd	#$0f1e		point to grid offset for player
+	ldx	#player
+	jsr	tiledrw
+
 	ldd	#$1511		point to grid offset for xmas tree start
 	ldx	#xmstree
 	jsr	tiledrw
