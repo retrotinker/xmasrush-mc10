@@ -1,7 +1,7 @@
 	nam	xmasrush
 	ttl	Xmas Rush
 
-LOAD	equ	$4400
+LOAD	equ	$4c00
 START	equ	LOAD
 
 P1DATA  equ     $0002
@@ -85,6 +85,16 @@ restrt1	ldaa	atmpcnt		bump attempts counter
 restrt2	staa	atmpcnt
 
 	jsr	instscn
+
+	jsr	clrscrn
+
+	jsr	cg3init
+
+brkchck	ldaa	#$fb		check for BREAK
+	staa	P1DATA
+	ldaa	P2DATA
+	anda	#$02
+	bne	brkchck
 
 	jmp	exit
 
@@ -428,6 +438,28 @@ tlykyex	ins
 * txtinit -- setup text screen
 *
 txtinit	clr	KVSPRT
+	rts
+
+*
+* cg3init -- setup initial CG3 video mode/screen
+*
+cg3init	ldaa	#$64
+	staa	KVSPRT
+	rts
+
+*
+* clrscrn -- clear both video fields to the background color
+*
+*       D,X clobbered
+*
+clrscrn	ldx	#VBASE
+	clra
+	clrb
+clrsc.1	std	,x
+	inx
+	inx
+	cpx	#VBASE+VSIZE
+	blt	clrsc.1
 	rts
 
 *
