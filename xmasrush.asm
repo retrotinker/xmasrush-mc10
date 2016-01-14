@@ -89,26 +89,78 @@ restrt2	staa	atmpcnt
 	jsr	plfdraw
 
 	ldd	#$0f1e		point to grid offset for player
+	std	playpos
+
+	ldd	#$1511		point to grid offset for xmas tree start
+	std	xmstpos
+
+	ldd	#$0703		point to grid offset for snowman 1 start
+	std	snw1pos
+
+	ldd	#$0e0b		point to grid offset for snowman 2 start
+	std	snw2pos
+
+	ldd	#$190d		point to grid offset for snowman 3 start
+	std	snw3pos
+
+	ldd	#$0b18		point to grid offset for snowman 4 start
+	std	snw4pos
+
+vblank	ldab    TCSR		check for timer expiry
+	andb    #$40
+	bne	vtimer
+	jmp	brkchck
+
+vtimer	ldd     TIMER		setup timer for ~1 frame duration
+*	addd    #14921
+*	addd    #12089		factor of 17/21 from 14934
+	addd    #11038		factor of 17/23 from 14934
+*
+	pshb
+	psha
+	pulx
+	ldab    TCSR
+	stx     TOCR
+
+verase	ldd	playpos
+	jsr	tileras
+
+	ldd	xmstpos
+	jsr	tileras
+
+	ldd	snw1pos
+	jsr	tileras
+
+	ldd	snw2pos
+	jsr	tileras
+
+	ldd	snw3pos
+	jsr	tileras
+
+	ldd	snw4pos
+	jsr	tileras
+
+vdraw	ldd	playpos
 	ldx	#player
 	jsr	tiledrw
 
-	ldd	#$1511		point to grid offset for xmas tree start
+	ldd	xmstpos
 	ldx	#xmstree
 	jsr	tiledrw
 
-	ldd	#$0703		point to grid offset for snowman 1 start
+	ldd	snw1pos
 	ldx	#snowman
 	jsr	tiledrw
 
-	ldd	#$0e0b		point to grid offset for snowman 2 start
+	ldd	snw2pos
 	ldx	#snowman
 	jsr	tiledrw
 
-	ldd	#$190d		point to grid offset for snowman 3 start
+	ldd	snw3pos
 	ldx	#snowman
 	jsr	tiledrw
 
-	ldd	#$0b18		point to grid offset for snowman 4 start
+	ldd	snw4pos
 	ldx	#snowman
 	jsr	tiledrw
 
@@ -116,9 +168,10 @@ brkchck	ldaa	#$fb		check for BREAK
 	staa	P1DATA
 	ldaa	P2DATA
 	anda	#$02
-	bne	brkchck
-
+	bne	vloop
 	jmp	exit
+
+vloop	jmp	vblank
 
 *
 * Show intro screen
@@ -589,6 +642,34 @@ plflxck	dec	2,x		check for end of map data
 	rts
 
 *
+* tileras -- erase background tile
+*
+*	D -- x- and y-coordinate (in A and B)
+*
+*	D,X clobbered
+*
+tileras	jsr	cvtpos
+	addd	#VBASE
+	pshb
+	psha
+	pulx
+
+	clra
+	clrb
+	std	,x
+	std	$20,x
+	std	$40,x
+	std	$60,x
+
+	ldab	#$80
+	abx
+	clrb
+	std	,x
+	std	$20,x
+
+	rts
+
+*
 * tiledrw -- draw background tile
 *
 *	D -- x- and y-coordinate (in A and B)
@@ -836,6 +917,14 @@ ctlstr	fcb	$43,$4f,$4e,$54,$52,$4f,$4c,$20,$06,$0f,$12,$20,$0e,$05,$17,$20
 
 brkstr	fcb	$42,$52,$45,$41,$4b,$20,$14,$0f,$20,$05,$0e,$04,$20,$07,$01,$0d
 	fcb	$05,$00
+
+playpos	rmb	2
+xmstpos	rmb	2
+
+snw1pos	rmb     2
+snw2pos	rmb	2
+snw3pos	rmb	2
+snw4pos	rmb	2
 
 atmpcnt	rmb	1
 seizcnt	rmb	1
