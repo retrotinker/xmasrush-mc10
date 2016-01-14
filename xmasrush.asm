@@ -15,6 +15,8 @@ KVSPRT	equ	$bfff
 
 RESET	equ	$fffe
 
+FRAMCNT	equ	14934
+
 TXTBASE	equ	$4000				memory map-related definitions
 TXTEND	equ	$4200
 VBASE	equ	$4000
@@ -111,11 +113,8 @@ vblank	ldab    TCSR		check for timer expiry
 	bne	vtimer
 	jmp	brkchck
 
-vtimer	ldd     TIMER		setup timer for ~1 frame duration
-*	addd    #14921
-*	addd    #12089		factor of 17/21 from 14934
-	addd    #11038		factor of 17/23 from 14934
-*
+vtimer	ldd	TOCR		setup timer for ~1 frame duration
+	addd	#FRAMCNT
 	pshb
 	psha
 	pulx
@@ -204,13 +203,13 @@ intsclp	ldaa	,x
 
 	ldaa	#$20		setup counter for 30 frames
 	psha
-inttimr	ldd     TIMER		setup timer for ~1 frame duration
-        addd    #14915
-        pshb
-        psha
-        pulx
-        ldab    TCSR
-        stx     TOCR
+inttimr	ldd	TOCR		setup timer for ~1 frame duration
+	addd	#FRAMCNT
+	pshb
+	psha
+	pulx
+	ldab	TCSR
+	stx	TOCR
 
 intkylp	ldaa	#$fb		check for BREAK
 	staa	P1DATA
@@ -288,13 +287,13 @@ jokescn	jsr	txtinit		setup text screen
 
 	ldaa	#$80		setup counter for 128 frames
 	psha
-jkstimr	ldd     TIMER		setup timer for ~1 frame duration
-        addd    #14915
-        pshb
-        psha
-        pulx
-        ldab    TCSR
-        stx     TOCR
+jkstimr	ldd	TOCR		setup timer for ~1 frame duration
+	addd	#FRAMCNT
+	pshb
+	psha
+	pulx
+	ldab	TCSR
+	stx	TOCR
 
 jkskylp	ldaa	#$fb		check for BREAK
 	staa	P1DATA
@@ -363,13 +362,13 @@ instscn	jsr	txtinit		setup text screen
 
 	ldaa	#$80		setup counter for 128 frames
 	psha
-instimr	ldd     TIMER		setup timer for ~1 frame duration
-        addd    #14915
-        pshb
-        psha
-        pulx
-        ldab    TCSR
-        stx     TOCR
+instimr	ldd	TOCR		setup timer for ~1 frame duration
+	addd	#FRAMCNT
+	pshb
+	psha
+	pulx
+	ldab	TCSR
+	stx	TOCR
 
 inskylp	ldaa	#$fb		check for BREAK
 	staa	P1DATA
@@ -458,13 +457,13 @@ talyscn	jsr	txtinit		setup text screen
 
 	ldaa	#$20		setup counter for 30 frames
 	psha
-tlytimr	ldd     TIMER		setup timer for ~1 frame duration
-        addd    #14915
-        pshb
-        psha
-        pulx
-        ldab    TCSR
-        stx     TOCR
+tlytimr	ldd	TOCR		setup timer for ~1 frame duration
+	addd	#FRAMCNT
+	pshb
+	psha
+	pulx
+	ldab	TCSR
+	stx	TOCR
 
 tlykylp	ldaa	#$fb		check for BREAK
 	staa	P1DATA
