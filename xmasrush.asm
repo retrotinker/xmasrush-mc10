@@ -94,21 +94,27 @@ restrt2	staa	atmpcnt
 
 	ldd	#$0f1e		point to grid offset for player
 	std	playpos
+	std	players
 
 	ldd	#$1511		point to grid offset for xmas tree start
 	std	xmstpos
+	std	xmsters
 
 	ldd	#$0703		point to grid offset for snowman 1 start
 	std	snw1pos
+	std	snw1ers
 
 	ldd	#$0e0b		point to grid offset for snowman 2 start
 	std	snw2pos
+	std	snw2ers
 
 	ldd	#$190d		point to grid offset for snowman 3 start
 	std	snw3pos
+	std	snw3ers
 
 	ldd	#$0b18		point to grid offset for snowman 4 start
 	std	snw4pos
+	std	snw4ers
 
 vblank	ldab    TCSR		check for timer expiry
 	andb    #$40
@@ -123,45 +129,51 @@ vtimer	ldd	TOCR		setup timer for ~1 frame duration
 	ldab    TCSR
 	stx     TOCR
 
-verase	ldd	playpos
+verase	ldd	players
 	jsr	tileras
 
-	ldd	xmstpos
+	ldd	xmsters
 	jsr	tileras
 
-	ldd	snw1pos
+	ldd	snw1ers
 	jsr	tileras
 
-	ldd	snw2pos
+	ldd	snw2ers
 	jsr	tileras
 
-	ldd	snw3pos
+	ldd	snw3ers
 	jsr	tileras
 
-	ldd	snw4pos
+	ldd	snw4ers
 	jsr	tileras
 
 vdraw	ldd	playpos
+	std	players
 	ldx	#player
 	jsr	tiledrw
 
 	ldd	xmstpos
+	std	xmsters
 	ldx	#xmstree
 	jsr	tiledrw
 
 	ldd	snw1pos
+	std	snw1ers
 	ldx	#snowman
 	jsr	tiledrw
 
 	ldd	snw2pos
+	std	snw2ers
 	ldx	#snowman
 	jsr	tiledrw
 
 	ldd	snw3pos
+	std	snw3ers
 	ldx	#snowman
 	jsr	tiledrw
 
 	ldd	snw4pos
+	std	snw4ers
 	ldx	#snowman
 	jsr	tiledrw
 
@@ -1067,6 +1079,14 @@ snw1pos	rmb     2
 snw2pos	rmb	2
 snw3pos	rmb	2
 snw4pos	rmb	2
+
+players	rmb	2
+xmsters	rmb	2
+
+snw1ers	rmb     2
+snw2ers	rmb	2
+snw3ers	rmb	2
+snw4ers	rmb	2
 
 atmpcnt	rmb	1
 seizcnt	rmb	1
