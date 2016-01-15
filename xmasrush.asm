@@ -90,6 +90,8 @@ restrt2	staa	atmpcnt
 
 	jsr	plfdraw
 
+	jsr	bgcmini		init background collision map
+
 	ldd	#$0f1e		point to grid offset for player
 	std	playpos
 
@@ -585,6 +587,98 @@ bcdshow	psha
 	rts
 
 *
+* bgcmini -- init background collision map
+*
+*	D,X clobbered
+*
+*bgcmini	ldx	#plyfmap
+bgcmini	ldx	#plyfmap
+	pshx
+*	lda	#plyfmsz	init map size counter
+	ldaa	#plyfmsz	init map size counter
+*	pshs	a
+	psha
+
+*	ldy	#bgclmap
+	ldx	#bgclmap
+*bginilp	clr	,y+
+bginilp	clr	,x
+	inx
+*	deca
+	deca
+*	bne	bginilp
+	bne	bginilp
+*	ldy	#bgclmap
+	ldx	#bgclmap
+	pshx
+
+*bgcloop	pshs	a
+bgcloop	psha
+*	clrb
+	clrb
+
+*	lda	,x+
+	tsx
+	ldx	4,x
+	ldaa	,x
+*	pshs	a
+	psha
+	pshb
+	inx
+	pshx
+	pulb
+	pula
+	tsx
+	std	6,x
+	ldaa	1,x
+	pulb
+*	lsra
+	lsra
+*	rorb
+	rorb
+*	ora	,s+
+	oraa	,x
+	inx
+	ins
+
+*	ora	,s+
+	oraa	,x
+	inx
+	ins
+*	sta	4,y
+	ldx	,x
+	staa	4,x
+
+*	ora	,y
+	oraa	,x
+*	sta	,y+
+	staa	,x
+	inx
+	pshb
+	pshx
+	pulb
+	pula
+	tsx
+	std	1,x
+	pulb
+*	tfr	b,a
+	tba
+
+*	dec	,s
+	tsx
+	dec	2,x
+*	bne	bgcloop
+	bne	bgcloop
+
+*	leas	1,s
+	ldab	#$05
+	abx
+	txs
+*	rts
+	rts
+
+
+*
 * plfdraw -- draw playfield based on plyfmap data
 *
 *	D,X clobbered
@@ -916,6 +1010,8 @@ ctlstr	fcb	$43,$4f,$4e,$54,$52,$4f,$4c,$20,$06,$0f,$12,$20,$0e,$05,$17,$20
 
 brkstr	fcb	$42,$52,$45,$41,$4b,$20,$14,$0f,$20,$05,$0e,$04,$20,$07,$01,$0d
 	fcb	$05,$00
+
+bgclmap	rmb	plyfmsz
 
 playpos	rmb	2
 xmstpos	rmb	2
