@@ -587,6 +587,53 @@ bcdshow	psha
 	rts
 
 *
+* bgcolck -- check for collision with background
+*
+*	D -- x- and y-coordinate (in A and B)
+*
+*	D,X clobbered
+*
+bgcolck	psha			save x-offset
+
+	lslb			transform x- and y-offset to pointer
+	lslb
+	ldx	#bgclmap
+	abx
+	lsra
+	lsra
+	lsra
+	tab
+	abx
+
+	pula			use x-offset to build bitmask
+	anda	#$07
+	inca
+	ldab	#$c0		two bits wide for tile/sprite size
+
+bgclck1	deca
+	beq	bgclck2
+	lsrb
+	bra	bgclck1
+
+bgclck2	bitb	,x		check bitmask against collision map
+	bne	bgclckx			at each relevant position
+	bitb	4,x
+	bne	bgclckx
+	cmpb	#$01
+	bne	bgclck3
+	ldab	#$80
+	bitb	1,x
+	bne	bgclckx
+	bitb	5,x
+	bne	bgclckx
+
+bgclck3	clc			clear carry on no collision
+	rts
+
+bgclckx	sec			set carry on collision
+	rts
+
+*
 * bgcmini -- init background collision map
 *
 *	D,X clobbered
