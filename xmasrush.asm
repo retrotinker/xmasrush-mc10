@@ -22,6 +22,16 @@ TXTEND	equ	$4200
 VBASE	equ	$4000
 VSIZE	equ	$0c00
 
+INPUTRT	equ	$01				input bit flag definitions
+INPUTLT	equ	$02
+INPUTUP	equ	$04
+INPUTDN	equ	$08
+INPUTBT	equ	$10
+
+INMVMSK	equ	$0f				mask of movement bits
+
+MVDLR60	equ	$08				60Hz reset value for movement delay counter
+
 #IS1BASE	equ	(TXTBASE+5*32+3)	string display location info
 IS1BASE	equ	$40a3
 #IS2BASE	equ	(TXTBASE+6*32+3)
@@ -55,6 +65,9 @@ PLAYPOS	equ	$4138
 	clr	atmpcnt		clear results tallies
 	clr	seizcnt
 	clr	escpcnt
+
+	ldaa	#MVDLR60	setup default movement count
+	staa	mvdlrst
 
 restart	ldd	#$400
 	pshb
@@ -116,6 +129,9 @@ restrt2	staa	atmpcnt
 	std	snw4pos
 	std	snw4ers
 
+	ldaa	#$01		preset movement delay counter
+	staa	mvdlcnt
+
 vblank	ldab    TCSR		check for timer expiry
 	andb    #$40
 	bne	vtimer
@@ -176,6 +192,64 @@ vdraw	ldd	playpos
 	std	snw4ers
 	ldx	#snowman
 	jsr	tiledrw
+
+vcalc	jsr	inpread
+
+	ldx	playpos
+	pshx
+	tsx
+
+	ldab	inpflgs
+	andb	#INMVMSK
+	beq	vcalc.4
+
+	dec	mvdlcnt
+	bne	vcalc.4
+
+	ldaa	mvdlrst
+	staa	mvdlcnt
+
+* make movement sound here
+
+	bitb	#INPUTUP
+	beq	vcalc.1
+	ldaa	1,x
+	beq	vcalc.1
+	deca
+	staa	1,x
+	bra	vcalc.4
+vcalc.1	bitb	#INPUTDN
+	beq	vcalc.2
+	ldaa	1,x
+	cmpa	#$1e
+	bge	vcalc.2
+	inca
+	staa	1,x
+	bra	vcalc.4
+vcalc.2	bitb	#INPUTLT
+	beq	vcalc.3
+	ldaa	,x
+	beq	vcalc.3
+	deca
+	staa	,x
+	bra	vcalc.4
+vcalc.3	bitb	#INPUTRT
+	beq	vcalc.4
+	ldaa	,x
+	cmpa	#$1e
+	bge	vcalc.4
+	inca
+	staa	,x
+
+vcalc.4	ldd	,x
+	jsr	bgcolck
+	bcs	vcalc.5
+
+	pulx
+	stx	playpos
+	bra	brkchck
+
+vcalc.5	pulx
 
 brkchck	ldaa	#$fb		check for BREAK
 	staa	P1DATA
@@ -519,6 +593,49 @@ tlykypr	ldaa	KVSPRT
 	beq	tlykypr
 	sec
 tlykyex	ins
+	rts
+
+*
+* inpread -- read keyboard input
+*
+*	D clobbered
+*
+inpread	clrb
+
+	ldaa	#$7f
+	staa	P1DATA
+	ldaa	KVSPRT
+	anda	#$08
+	bne	inpre.1
+	orab	#INPUTBT
+inpre.1	ldaa	#$f7
+	staa	P1DATA
+	ldaa	KVSPRT
+	anda	#$04
+	bne	inpre.2
+	orab	#INPUTRT
+inpre.2	ldaa	#$fd
+	staa	P1DATA
+	ldaa	KVSPRT
+	anda	#$01
+	bne	inpre.3
+	orab	#INPUTLT
+inpre.3	ldaa	#$fb
+	staa	P1DATA
+	ldaa	KVSPRT
+	anda	#$08
+	bne	inpre.4
+	orab	#INPUTDN
+inpre.4	ldaa	#$7f
+	staa	P1DATA
+	ldaa	KVSPRT
+	anda	#$04
+	bne	inpre.5
+	orab	#INPUTUP
+inpre.5	ldaa	#$ff
+	staa	P1DATA
+
+inprdex	stab	inpflgs
 	rts
 
 *
@@ -919,7 +1036,9 @@ cvtpos	pshb
 *
 * Exit to Micro Color BASIC
 *
-exit	ldx	RESET
+exit	jsr	clrscrn
+
+	ldx	RESET
 	jmp	,x
 
 *
@@ -1071,6 +1190,11 @@ brkstr	fcb	$42,$52,$45,$41,$4b,$20,$14,$0f,$20,$05,$0e,$04,$20,$07,$01,$0d
 	fcb	$05,$00
 
 bgclmap	rmb	plyfmsz
+
+inpflgs	rmb	1
+
+mvdlrst	rmb	1
+mvdlcnt	rmb	1
 
 playpos	rmb	2
 xmstpos	rmb	2
