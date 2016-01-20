@@ -951,6 +951,8 @@ tiledrw	pshx
 	ldd	,x
 	tsx
 	pulx
+	eora	,x
+	eorb	1,x
 	std	,x
 
 	ldab	#$20
@@ -961,6 +963,8 @@ tiledrw	pshx
 	ldx	2,x
 	ldd	2,x
 	pulx
+	eora	,x
+	eorb	1,x
 	std	,x
 
 	ldab	#$20
@@ -971,6 +975,8 @@ tiledrw	pshx
 	ldx	2,x
 	ldd	4,x
 	pulx
+	eora	,x
+	eorb	1,x
 	std	,x
 
 	ldab	#$20
@@ -981,6 +987,8 @@ tiledrw	pshx
 	ldx	2,x
 	ldd	6,x
 	pulx
+	eora	,x
+	eorb	1,x
 	std	,x
 
 	ldab	#$20
@@ -991,6 +999,8 @@ tiledrw	pshx
 	ldx	2,x
 	ldd	8,x
 	pulx
+	eora	,x
+	eorb	1,x
 	std	,x
 
 	ldab	#$20
@@ -1001,6 +1011,8 @@ tiledrw	pshx
 	ldx	2,x
 	ldd	10,x
 	pulx
+	eora	,x
+	eorb	1,x
 	std	,x
 
 	pula
