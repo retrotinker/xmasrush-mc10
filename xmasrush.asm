@@ -203,57 +203,59 @@ vdraw	ldd	playpos
 	ldx	#snowman
 	jsr	tiledrw
 
-vcalc	jsr	inpread
+vcalc	jsr	inpread		read player input for next frame
 
-	ldx	playpos
+	ldx	playpos		copy player position for movement check
 	pshx
 	tsx
 
-	ldab	inpflgs
+	ldab	inpflgs		check for any indication of movement
 	andb	#INMVMSK
-	beq	vcalc.4
+	bne	vcalc.1
+	jmp	vcalc.6
 
-	dec	mvdlcnt
-	bne	vcalc.4
+vcalc.1	dec	mvdlcnt		decrement movement delay counter
+	beq	vcalc.2
+	jmp	vcalc.6
 
-	ldaa	mvdlrst
+vcalc.2	ldaa	mvdlrst		reset movement delay counter
 	staa	mvdlcnt
 
 * make movement sound here
 
 	bitb	#INPUTUP
-	beq	vcalc.1
-	ldaa	1,x
-	beq	vcalc.1
-	deca
-	staa	1,x
-	bra	vcalc.4
-vcalc.1	bitb	#INPUTDN
-	beq	vcalc.2
-	ldaa	1,x
-	cmpa	#$1e
-	bge	vcalc.2
-	inca
-	staa	1,x
-	bra	vcalc.4
-vcalc.2	bitb	#INPUTLT
 	beq	vcalc.3
-	ldaa	,x
+	ldaa	1,x
 	beq	vcalc.3
 	deca
-	staa	,x
-	bra	vcalc.4
-vcalc.3	bitb	#INPUTRT
+	staa	1,x
+	bra	vcalc.6
+vcalc.3	bitb	#INPUTDN
 	beq	vcalc.4
-	ldaa	,x
+	ldaa	1,x
 	cmpa	#$1e
 	bge	vcalc.4
 	inca
+	staa	1,x
+	bra	vcalc.6
+vcalc.4	bitb	#INPUTLT
+	beq	vcalc.5
+	ldaa	,x
+	beq	vcalc.5
+	deca
+	staa	,x
+	bra	vcalc.6
+vcalc.5	bitb	#INPUTRT
+	beq	vcalc.6
+	ldaa	,x
+	cmpa	#$1e
+	bge	vcalc.6
+	inca
 	staa	,x
 
-vcalc.4	ldd	,x		check for pending collision
+vcalc.6	ldd	,x		check for pending collision
 	jsr	bgcolck
-	bcc	vcalc.5
+	bcc	vcalc.7
 
 	pulx			if collision, don't move
 
@@ -264,7 +266,7 @@ vcalc.4	ldd	,x		check for pending collision
 
 	bra	brkchck
 
-vcalc.5	pulx			allow movement
+vcalc.7	pulx			allow movement
 	stx	playpos
 
 brkchck	ldaa	#$fb		check for BREAK
