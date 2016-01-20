@@ -62,6 +62,11 @@ PLAYPOS	equ	$4138
 
 	org	START
 
+	ldab	TIMER		Seed the LFSR data
+	bne	lfsrini		Can't tolerate a zero-value LFSR seed...
+	ldab	#$01
+lfsrini	stab	lfsrdat
+
 	clr	atmpcnt		clear results tallies
 	clr	seizcnt
 	clr	escpcnt
@@ -1023,6 +1028,36 @@ cvtpos	pshb
 	rts
 
 *
+* Advance the LFSR value and return pseudo-random value
+*
+*	A returns pseudo-random value
+*	B gets clobbered
+*
+* 	Wikipedia article on LFSR cites this polynomial for a maximal 8-bit LFSR:
+*
+*		x8 + x6 + x5 + x4 + 1
+*
+*	http://en.wikipedia.org/wiki/Linear_feedback_shift_register
+*
+lfsrget	ldaa	lfsrdat		Get MSB of LFSR data
+	anda	#$80		Capture x8 of LFSR polynomial
+	lsra
+	lsra
+	eora	lfsrdat		Capture X6 of LFSR polynomial
+	lsra
+	eora	lfsrdat		Capture X5 of LFSR polynomial
+	lsra
+	eora	lfsrdat		Capture X4 of LFSR polynomial
+	lsra			Move result to Carry bit of CC
+	lsra
+	lsra
+	lsra
+	ldaa	lfsrdat		Get all of LFSR data
+	rola			Shift result into 8-bit LFSR
+	staa	lfsrdat		Store the result
+	rts
+
+*
 * Exit to Micro Color BASIC
 *
 exit	jsr	clrscrn
@@ -1179,6 +1214,8 @@ brkstr	fcb	$42,$52,$45,$41,$4b,$20,$14,$0f,$20,$05,$0e,$04,$20,$07,$01,$0d
 	fcb	$05,$00
 
 inpflgs	rmb	1
+
+lfsrdat	rmb	1
 
 mvdlrst	rmb	1
 mvdlcnt	rmb	1
