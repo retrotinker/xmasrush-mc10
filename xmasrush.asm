@@ -137,7 +137,12 @@ vblank	ldab    TCSR		check for timer expiry
 	bne	vtimer
 	jmp	brkchck
 
-vtimer	ldd	TOCR		setup timer for ~1 frame duration
+vtimer	ldaa	vdgcnfg		restore CSS for BCMO colors
+	oraa	#$40
+	staa	KVSPRT
+	staa	vdgcnfg
+
+	ldd	TOCR		setup timer for ~1 frame duration
 	addd	#FRAMCNT
 	pshb
 	psha
@@ -241,15 +246,21 @@ vcalc.3	bitb	#INPUTRT
 	inca
 	staa	,x
 
-vcalc.4	ldd	,x
+vcalc.4	ldd	,x		check for pending collision
 	jsr	bgcolck
-	bcs	vcalc.5
+	bcc	vcalc.5
 
-	pulx
-	stx	playpos
+	pulx			if collision, don't move
+
+	ldaa	vdgcnfg		also, flash the screen (w/ CSS change)
+	anda	#$bf
+	staa	KVSPRT
+	staa	vdgcnfg
+
 	bra	brkchck
 
-vcalc.5	pulx
+vcalc.5	pulx			allow movement
+	stx	playpos
 
 brkchck	ldaa	#$fb		check for BREAK
 	staa	P1DATA
@@ -642,6 +653,7 @@ inprdex	stab	inpflgs
 * txtinit -- setup text screen
 *
 txtinit	clr	KVSPRT
+	clr	vdgcnfg
 	rts
 
 *
@@ -649,6 +661,7 @@ txtinit	clr	KVSPRT
 *
 cg3init	ldaa	#$64
 	staa	KVSPRT
+	staa	vdgcnfg
 	rts
 
 *
@@ -1191,5 +1204,7 @@ snw4ers	rmb	2
 atmpcnt	rmb	1
 seizcnt	rmb	1
 escpcnt	rmb	1
+
+vdgcnfg	rmb	1
 
 	end	START
