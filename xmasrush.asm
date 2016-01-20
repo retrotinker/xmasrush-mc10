@@ -15,6 +15,8 @@ KVSPRT	equ	$bfff
 
 RESET	equ	$fffe
 
+SQWAVE	equ	$80
+
 FRAMCNT	equ	14934
 
 TXTBASE	equ	$4000				memory map-related definitions
@@ -221,7 +223,40 @@ vcalc.1	dec	mvdlcnt		decrement movement delay counter
 vcalc.2	ldaa	mvdlrst		reset movement delay counter
 	staa	mvdlcnt
 
-* make movement sound here
+	ldaa	#$04		make player movement sound
+	psha
+	psha
+	tsx
+vplms.1	brn	*		hard-coded delay, approximately 57 cycles
+	brn	*
+	brn	*
+	brn	*
+	brn	*
+	brn	*
+	brn	*
+vplms.2	brn	*		outer loop re-entry, fix-up for lost cycles
+	brn	*
+	brn	*
+	brn	*
+	brn	*
+	brn	*
+	brn	*
+	brn	*
+	brn	*
+	dec	,x
+	bne	vplms.1
+	ldaa	#$04
+	staa	,x
+	jsr	lfsrget
+	anda	#SQWAVE
+	eora	vdgcnfg
+	staa	KVSPRT
+	staa	vdgcnfg
+	dec	1,x
+	bne	vplms.2
+	ins
+	ins
+	tsx
 
 	bitb	#INPUTUP
 	beq	vcalc.3
