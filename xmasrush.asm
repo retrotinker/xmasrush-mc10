@@ -260,33 +260,29 @@ vplms.2	brn	*		outer loop re-entry, fix-up for lost cycles
 
 	bitb	#INPUTUP
 	beq	vcalc.3
-	ldaa	1,x
+	tst	1,x
 	beq	vcalc.3
-	deca
-	staa	1,x
+	dec	1,x
 	bra	vcalc.6
 vcalc.3	bitb	#INPUTDN
 	beq	vcalc.4
-	ldaa	1,x
-	cmpa	#$1e
-	bge	vcalc.4
-	inca
-	staa	1,x
+	ldaa	#$1e
+	cmpa	1,x
+	beq	vcalc.4
+	inc	1,x
 	bra	vcalc.6
 vcalc.4	bitb	#INPUTLT
 	beq	vcalc.5
-	ldaa	,x
+	tst	,x
 	beq	vcalc.5
-	deca
-	staa	,x
+	dec	,x
 	bra	vcalc.6
 vcalc.5	bitb	#INPUTRT
 	beq	vcalc.6
-	ldaa	,x
-	cmpa	#$1e
-	bge	vcalc.6
-	inca
-	staa	,x
+	ldaa	#$1e
+	cmpa	,x
+	beq	vcalc.6
+	inc	,x
 
 vcalc.6	ldd	,x		check for pending collision
 	jsr	bgcolck
