@@ -155,6 +155,9 @@ restrt2	staa	atmpcnt
 	staa	sn3mcnt
 	staa	sn4mcnt
 
+	ldd	playpos		set initial target for snowman 1
+	std	snw1tgt
+
 	clra			initialize game status flags
 	oraa	#GMFXMTR
 	oraa	#GMFSNW4
@@ -517,7 +520,137 @@ loss.2	jmp	restart
 *
 * Move snowman 1
 *
-snw1mov	rts
+snw1mov	dec	sn1mcnt
+	beq	snw1m.0
+	jmp	snw1mvx
+
+snw1m.0	ldaa	snmdrst
+	staa	sn1mcnt
+
+	ldaa	#GMFXMTR
+	bita	gamflgs
+	bne	snw1m.1
+
+	ldd	playpos
+	std	snw1tgt
+
+snw1m.1	ldd	snw1pos
+	cmpa	snw1tgt
+	blt	snw1m.2
+	bgt	snw1m.3
+
+	jsr	lfsrget
+	anda	#$1f
+	staa	snw1tgt
+	ldaa	snw1pos
+	bra	snw1m.4
+
+snw1m.2	inca
+	bra	snw1m.4
+
+snw1m.3	deca
+
+snw1m.4	pshb
+	psha
+	jsr	bgcolck
+	bcs	snw1m.5
+
+	ldx	#xmstpos
+	jsr	spcolck
+	bcs	snw1m.5
+
+	tsx
+
+	ldd	snw2pos
+	cmpa	,x
+	bne	snw1m.6
+	cmpb	1,x
+	bne	snw1m.6
+	bra	snw1m.5
+
+	ldd	snw3pos
+	cmpa	,x
+	bne	snw1m.6
+	cmpb	1,x
+	bne	snw1m.6
+	bra	snw1m.5
+
+	ldd	snw4pos
+	cmpa	,x
+	bne	snw1m.6
+	cmpb	1,x
+	bne	snw1m.6
+
+snw1m.5	ins
+	ins
+	jsr	lfsrget
+	anda	#$1f
+	staa	snw1tgt
+	ldd	snw1pos
+	bra	snw1m.7
+
+snw1m.6	pula
+	pulb
+	std	snw1pos
+
+snw1m.7	cmpb	snw1tgt+1
+	blt	snw1m.8
+	bgt	snw1m.9
+
+	jsr	lfsrget
+	anda	#$1f
+	staa	snw1tgt+1
+	ldaa	snw1pos
+	bra	snw1m.a
+
+snw1m.8	incb
+	bra	snw1m.a
+
+snw1m.9	decb
+
+snw1m.a	pshb
+	psha
+	jsr	bgcolck
+	bcs	snw1m.b
+
+	ldx	#xmstpos
+	jsr	spcolck
+	bcs	snw1m.b
+
+	tsx
+
+	ldd	snw2pos
+	cmpa	,x
+	bne	snw1m.c
+	cmpb	1,x
+	bne	snw1m.c
+	bra	snw1m.b
+
+	ldd	snw3pos
+	cmpa	,x
+	bne	snw1m.c
+	cmpb	1,x
+	bne	snw1m.c
+	bra	snw1m.b
+
+	ldd	snw4pos
+	cmpa	,x
+	bne	snw1m.c
+	cmpb	1,x
+	bne	snw1m.c
+
+snw1m.b	ins
+	ins
+	jsr	lfsrget
+	anda	#$1e
+	staa	snw1tgt+1
+	bra	snw1mvx
+
+snw1m.c	pula
+	pulb
+	std	snw1pos
+
+snw1mvx	rts
 
 *
 * Move snowman 2
