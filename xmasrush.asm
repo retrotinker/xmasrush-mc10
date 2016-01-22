@@ -19,20 +19,20 @@ SQWAVE	equ	$80
 
 FRAMCNT	equ	14934
 
-TXTBASE	equ	$4000				memory map-related definitions
+TXTBASE	equ	$4000		memory map-related definitions
 TXTEND	equ	$4200
 VBASE	equ	$4000
 VSIZE	equ	$0c00
 
-INPUTRT	equ	$01				input bit flag definitions
+INPUTRT	equ	$01		input bit flag definitions
 INPUTLT	equ	$02
 INPUTUP	equ	$04
 INPUTDN	equ	$08
 INPUTBT	equ	$10
 
-INMVMSK	equ	$0f				mask of movement bits
+INMVMSK	equ	$0f		mask of movement bits
 
-MVDLR60	equ	$08				60Hz reset value for movement delay counter
+MVDLR60	equ	$08		60Hz reset value for movement delay counter
 
 #IS1BASE	equ	(TXTBASE+5*32+3)	string display location info
 IS1BASE	equ	$40a3
