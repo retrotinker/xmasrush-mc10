@@ -329,10 +329,63 @@ vcalc.6	ldd	,x		check for pending collision
 	staa	KVSPRT
 	staa	vdgcnfg
 
-	bra	brkchck
+	bra	vcalc.8
 
 vcalc.7	pulx			allow movement
 	stx	playpos
+
+vcalc.8	equ	*
+
+vcalc.9	ldx	playpos		check for player collision w/ xmas tree
+	pshx
+	ldx	#xmstpos
+	jsr	spcolck
+	bcc	vcalc.a
+
+	ldaa	#GMFXMTR	if so, turn-off game flag for xmas tree
+	bita	gamflgs
+	beq	vcalc.a
+	coma
+	anda	gamflgs
+	staa	gamflgs
+
+	ldaa	#$40		play short "beep" as audio indicator
+	psha
+	psha
+	tsx
+vxmts.1	brn	*		hard-coded delay, approximately 57 cycles
+	brn	*
+	brn	*
+	brn	*
+	brn	*
+	brn	*
+	brn	*
+	brn	*
+	brn	*
+	nop
+vxmts.2	nop			outer loop re-entry, fix-up for lost cycles
+	nop
+	brn	*
+	brn	*
+	brn	*
+	brn	*
+	brn	*
+	dec	,x
+	bne	vxmts.1
+	ldaa	#$04
+	staa	,x
+	ldaa	vdgcnfg
+	eora	#SQWAVE
+	staa	KVSPRT
+	staa	vdgcnfg
+	dec	1,x
+	bne	vxmts.2
+	ins
+	ins
+	tsx
+
+vcalc.a	ins
+	ins
 
 brkchck	ldaa	#$fb		check for BREAK
 	staa	P1DATA
@@ -798,6 +851,44 @@ bcdshow	psha
 	anda	#$0f
 	adda	#$30
 	staa	,x
+	rts
+
+*
+* spcolck -- check for collision w/ player
+*
+*	2,S -- sprite position data
+*	X   -- pointer to object position data
+*
+*	A,X clobbered
+*
+spcolck	ldaa	,x
+	inx
+	pshx
+	tsx
+	deca
+	cmpa	4,x
+	bgt	spcolcx
+	adda	#$02
+	cmpa	4,x
+	blt	spcolcx
+	ldx	,x
+	ldaa	,x
+	tsx
+	deca
+	cmpa	5,x
+	bgt	spcolcx
+	adda	#$02
+	cmpa	5,x
+	blt	spcolcx
+
+	ins
+	ins
+	sec
+	rts
+
+spcolcx	ins
+	ins
+	clc
 	rts
 
 *
