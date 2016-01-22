@@ -239,7 +239,16 @@ vdraw.5	ldd	playpos
 	ldx	#player
 	jsr	tiledrw
 
-vcalc	jsr	inpread		read player input for next frame
+vcalc	ldaa	#GMFXMTR	check for player escape
+	bita	gamflgs
+	bne	vcalc.0
+	ldaa	playpos+1
+	cmpa	#$1e
+	blt	vcalc.0
+
+	jmp	win
+
+vcalc.0	jsr	inpread		read player input for next frame
 
 	ldx	playpos		copy player position for movement check
 	pshx
@@ -392,9 +401,64 @@ brkchck	ldaa	#$fb		check for BREAK
 	ldaa	P2DATA
 	anda	#$02
 	bne	vloop
-	jmp	exit
+brkck.1	ldaa	P2DATA
+	anda	#$02
+	beq	brkck.1
+	jmp	loss
 
 vloop	jmp	vblank
+
+win	ldaa	seizcnt		bump seizure and escape counts
+	adda	#$01
+	daa
+	staa	seizcnt
+	ldaa	escpcnt
+	adda	#$01
+	daa
+	staa	escpcnt
+
+* play win tone
+
+* wait for spacebar
+
+	ldd	#$0100
+	pshb
+	psha
+	jsr	talyscn
+	ins
+	ins
+
+	bcc	win.1
+	jmp	restrt1
+
+win.1	jmp	restart
+
+loss	ldaa	#GMFXMTR	bump seizure count, if appropriate
+	bita	gamflgs
+	bne	loss.1
+
+	ldaa	seizcnt
+	adda	#$01
+	daa
+	staa	seizcnt
+
+loss.1	equ	*
+
+* play loss tone
+
+* wait for spacebar
+
+	ldd	#$0100
+	pshb
+	psha
+	jsr	talyscn
+	ins
+	ins
+
+	bcc	loss.2
+	jmp	restrt1
+
+loss.2	jmp	restart
 
 *
 * Show intro screen
