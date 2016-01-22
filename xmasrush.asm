@@ -161,10 +161,17 @@ restrt2	staa	atmpcnt
 	clra			initialize game status flags
 	oraa	#GMFXMTR
 	oraa	#GMFSNW4
+	ldab	escpcnt
+	cmpb	#$01
+	blt	gmfli.1
 	oraa	#GMFSNW1
+gmfli.1	cmpb	#$02
+	blt	gmfli.2
 	oraa	#GMFSNW3
+gmfli.2	cmpb	#$03
+	blt	gmfli.3
 	oraa	#GMFSNW2
-	staa	gamflgs
+gmfli.3	staa	gamflgs
 
 vblank	ldab    TCSR		check for timer expiry
 	andb    #$40
