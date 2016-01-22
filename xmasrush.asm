@@ -32,6 +32,12 @@ INPUTBT	equ	$10
 
 INMVMSK	equ	$0f		mask of movement bits
 
+GMFXMTR	equ	$01		game status bit flag definitions
+GMFSNW1	equ	$02
+GMFSNW2	equ	$04
+GMFSNW3	equ	$08
+GMFSNW4	equ	$10
+
 MVDLR60	equ	$08		60Hz reset value for movement delay counter
 
 #IS1BASE	equ	(TXTBASE+5*32+3)	string display location info
@@ -139,6 +145,14 @@ restrt2	staa	atmpcnt
 	ldaa	#$01		preset movement delay counter
 	staa	mvdlcnt
 
+	clra			initialize game status flags
+	oraa	#GMFXMTR
+	oraa	#GMFSNW4
+	oraa	#GMFSNW1
+	oraa	#GMFSNW3
+	oraa	#GMFSNW2
+	staa	gamflgs
+
 vblank	ldab    TCSR		check for timer expiry
 	andb    #$40
 	bne	vtimer
@@ -175,34 +189,54 @@ verase	ldd	players
 	ldd	snw4ers
 	jsr	tileras
 
-vdraw	ldd	playpos
-	std	players
-	ldx	#player
-	jsr	tiledrw
+vdraw	ldaa	#GMFXMTR	check if xmas tree already taken
+	bita	gamflgs
+	beq	vdraw.1
 
 	ldd	xmstpos
 	std	xmsters
 	ldx	#xmstree
 	jsr	tiledrw
 
+vdraw.1	ldaa	#GMFSNW1	check if snowman 1 is active
+	bita	gamflgs
+	beq	vdraw.2
+
 	ldd	snw1pos
 	std	snw1ers
 	ldx	#snowman
 	jsr	tiledrw
+
+vdraw.2	ldaa	#GMFSNW2	check if snowman 2 is active
+	bita	gamflgs
+	beq	vdraw.3
 
 	ldd	snw2pos
 	std	snw2ers
 	ldx	#snowman
 	jsr	tiledrw
 
+vdraw.3	ldaa	#GMFSNW3	check if snowman 3 is active
+	bita	gamflgs
+	beq	vdraw.4
+
 	ldd	snw3pos
 	std	snw3ers
 	ldx	#snowman
 	jsr	tiledrw
 
+vdraw.4	ldaa	#GMFSNW4	check if snowman 4 is active
+	bita	gamflgs
+	beq	vdraw.5
+
 	ldd	snw4pos
 	std	snw4ers
 	ldx	#snowman
+	jsr	tiledrw
+
+vdraw.5	ldd	playpos
+	std	players
+	ldx	#player
 	jsr	tiledrw
 
 vcalc	jsr	inpread		read player input for next frame
@@ -1259,6 +1293,7 @@ brkstr	fcb	$42,$52,$45,$41,$4b,$20,$14,$0f,$20,$05,$0e,$04,$20,$07,$01,$0d
 	fcb	$05,$00
 
 inpflgs	rmb	1
+gamflgs	rmb	1
 
 lfsrdat	rmb	1
 
