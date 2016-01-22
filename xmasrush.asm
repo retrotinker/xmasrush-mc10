@@ -532,7 +532,144 @@ snw3mov	rts
 *
 * Move snowman 4
 *
-snw4mov	rts
+snw4mov	dec	sn4mcnt
+	beq	snw4m.0
+	jmp	snw4mvx
+
+snw4m.0	ldaa	snmdrst
+	staa	sn4mcnt
+
+	ldaa	#GMFXMTR
+	bita	gamflgs
+	bne	snw4m.1
+
+	ldd	playpos
+	cmpb	#$1a
+	blt	snw4m.1
+
+	std	snw4tgt
+
+snw4m.1	ldd	snw4pos
+	cmpa	snw4tgt
+	blt	snw4m.2
+	bgt	snw4m.3
+
+	jsr	lfsrget
+	anda	#$07
+	adda	#$0b
+	staa	snw4tgt
+	ldaa	snw4pos
+	bra	snw4m.4
+
+snw4m.2	inca
+	bra	snw4m.4
+
+snw4m.3	deca
+
+snw4m.4	pshb
+	psha
+	jsr	bgcolck
+	bcs	snw4m.5
+
+	ldx	#xmstpos
+	jsr	spcolck
+	bcs	snw4m.5
+
+	tsx
+
+	ldd	snw1pos
+	cmpa	,x
+	bne	snw4m.6
+	cmpb	1,x
+	bne	snw4m.6
+	bra	snw4m.5
+
+	ldd	snw2pos
+	cmpa	,x
+	bne	snw4m.6
+	cmpb	1,x
+	bne	snw4m.6
+	bra	snw4m.5
+
+	ldd	snw3pos
+	cmpa	,x
+	bne	snw4m.6
+	cmpb	1,x
+	bne	snw4m.6
+
+snw4m.5	ins
+	ins
+	jsr	lfsrget
+	anda	#$07
+	adda	#$0b
+	staa	snw4tgt
+	ldd	snw4pos
+	bra	snw4m.7
+
+snw4m.6	pula
+	pulb
+	std	snw4pos
+
+snw4m.7	cmpb	snw4tgt+1
+	blt	snw4m.8
+	bgt	snw4m.9
+
+	jsr	lfsrget
+	anda	#$07
+	adda	#$17
+	staa	snw4tgt+1
+	ldaa	snw4pos
+	bra	snw4m.a
+
+snw4m.8	incb
+	bra	snw4m.a
+
+snw4m.9	decb
+
+snw4m.a	pshb
+	psha
+	jsr	bgcolck
+	bcs	snw4m.b
+
+	ldx	#xmstpos
+	jsr	spcolck
+	bcs	snw4m.b
+
+	tsx
+
+	ldd	snw1pos
+	cmpa	,x
+	bne	snw4m.c
+	cmpb	1,x
+	bne	snw4m.c
+	bra	snw4m.b
+
+	ldd	snw2pos
+	cmpa	,x
+	bne	snw4m.c
+	cmpb	1,x
+	bne	snw4m.c
+	bra	snw4m.b
+
+	ldd	snw3pos
+	cmpa	,x
+	bne	snw4m.c
+	cmpb	1,x
+	bne	snw4m.c
+
+snw4m.b	ins
+	ins
+	jsr	lfsrget
+	anda	#$07
+	adda	#$17
+	staa	snw4tgt+1
+	bra	snw4mvx
+
+snw4m.c	pula
+	pulb
+	std	snw4pos
+
+snw4mvx	rts
 
 *
 * Show intro screen
