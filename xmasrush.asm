@@ -767,7 +767,131 @@ snw2mvx	rts
 *
 * Move snowman 3
 *
-snw3mov	rts
+snw3mov	dec	sn3mcnt
+	beq	snw3m.0
+	jmp	snw3mvx
+
+snw3m.0	ldaa	snmdrst
+	staa	sn3mcnt
+
+	ldaa	#GMFXMTR
+	bita	gamflgs
+	bne	snw3m.1
+
+	ldd	playpos
+	std	snw3tgt
+	bra	snw3m.2
+
+snw3m.1	ldd	playpos
+	suba	xmstpos
+	asra
+	adda	xmstpos
+	subb	xmstpos+1
+	asrb
+	addb	xmstpos+1
+	std	snw3tgt
+
+snw3m.2	ldd	snw3pos
+	cmpa	snw3tgt
+	blt	snw3m.3
+	bgt	snw3m.4
+	bra	snw3m.5
+
+snw3m.3	inca
+	bra	snw3m.5
+
+snw3m.4	deca
+
+snw3m.5	pshb
+	psha
+	jsr	bgcolck
+	bcs	snw3m.6
+
+	ldx	#xmstpos
+	jsr	spcolck
+	bcs	snw3m.6
+
+	inx
+
+	ldd	snw1pos
+	cmpa	,x
+	bne	snw3m.7
+	cmpb	1,x
+	bne	snw3m.7
+	bra	snw3m.6
+
+	ldd	snw2pos
+	cmpa	,x
+	bne	snw3m.7
+	cmpb	1,x
+	bne	snw3m.7
+	bra	snw3m.6
+
+	ldd	snw4pos
+	cmpa	,x
+	bne	snw3m.7
+	cmpb	1,x
+	bne	snw3m.7
+
+snw3m.6	ins
+	ins
+	ldd	snw3pos
+	bra	snw3m.8
+
+snw3m.7	pula
+	pulb
+	std	snw3pos
+
+snw3m.8	cmpb	snw3tgt+1
+	blt	snw3m.9
+	bgt	snw3m.a
+	bra	snw3m.b
+
+snw3m.9	incb
+	bra	snw3m.b
+
+snw3m.a	decb
+
+snw3m.b	pshb
+	psha
+	jsr	bgcolck
+	bcs	snw3m.c
+
+	ldx	#xmstpos
+	jsr	spcolck
+	bcs	snw3m.c
+
+	inx
+
+	ldd	snw1pos
+	cmpa	,x
+	bne	snw3m.d
+	cmpb	1,x
+	bne	snw3m.d
+	bra	snw3m.c
+
+	ldd	snw2pos
+	cmpa	,x
+	bne	snw3m.d
+	cmpb	1,x
+	bne	snw3m.d
+	bra	snw3m.c
+
+	ldd	snw4pos
+	cmpa	,x
+	bne	snw3m.d
+	cmpb	1,x
+	bne	snw3m.d
+
+snw3m.c	ins
+	ins
+	bra	snw3mvx
+
+snw3m.d	pula
+	pulb
+	std	snw3pos
+
+snw3mvx	rts
 
 *
 * Move snowman 4
