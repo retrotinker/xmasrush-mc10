@@ -239,6 +239,47 @@ vdraw.5	ldd	playpos
 	ldx	#player
 	jsr	tiledrw
 
+vcheck	ldx	playpos
+	pshx
+	ldaa	#GMFSNW1
+	bita	gamflgs
+	beq	vchck.1
+	ldx	#snw1pos	check for player collision w/ snowman 1
+	jsr	spcolck
+	bcc	vchck.1
+	ins
+	ins
+	jmp	loss
+vchck.1	ldaa	#GMFSNW2
+	bita	gamflgs
+	beq	vchck.2
+	ldx	#snw2pos	check for player collision w/ snowman 2
+	jsr	spcolck
+	bcc	vchck.2
+	ins
+	ins
+	jmp	loss
+vchck.2	ldaa	#GMFSNW3
+	bita	gamflgs
+	beq	vchck.3
+	ldx	#snw3pos	check for player collision w/ snowman 3
+	jsr	spcolck
+	bcc	vchck.3
+	ins
+	ins
+	jmp	loss
+vchck.3	ldaa	#GMFSNW4
+	bita	gamflgs
+	beq	vchck.4
+	ldx	#snw4pos	check for player collision w/ snowman 4
+	jsr	spcolck
+	bcc	vchck.4
+	ins
+	ins
+	jmp	loss
+vchck.4	ins
+	ins
+
 vcalc	ldaa	#GMFXMTR	check for player escape
 	bita	gamflgs
 	bne	vcalc.0
