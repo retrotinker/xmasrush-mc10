@@ -1198,7 +1198,19 @@ intkylp	ldaa	#$fb		check for BREAK
 	bne	intkyl1
 	jmp	exit
 
-intkyl1	ldaa	#$7f		check for SPACEBAR
+intkyl1	ldaa	#$fe		check for CONTROL
+	staa	P1DATA
+	ldaa	P2DATA
+	anda	#$02
+	bne	intkyl2
+
+	clr	atmpcnt		clear results tallies
+	clr	seizcnt
+	clr	escpcnt
+
+	bra	intkyto
+
+intkyl2	ldaa	#$7f		check for SPACEBAR
 	staa	P1DATA
 	ldaa	KVSPRT
 	anda	#$08
@@ -1209,7 +1221,7 @@ intkyl1	ldaa	#$7f		check for SPACEBAR
 	beq     intkylp
 	tsx
 	dec     ,x
-	bne     intkyl2
+	bne     intkyl3
 
 	ldx	#PLAYPOS	invert text for PLAY
 	ldab	#$04
@@ -1224,7 +1236,7 @@ intfllp	ldaa	,x
 	ldaa    #$20
 	staa    ,x
 
-intkyl2	dec	4,x
+intkyl3	dec	4,x
 	bne	inttimr
 	ldaa	3,x
 	beq	intkyto
@@ -1282,7 +1294,20 @@ jkskylp	ldaa	#$fb		check for BREAK
 	bne	jkskyl1
 	jmp	exit
 
-jkskyl1	ldaa	#$7f		check for SPACEBAR
+jkskyl1	ldaa	#$fe		check for CONTROL
+	staa	P1DATA
+	ldaa	P2DATA
+	anda	#$02
+	bne	jkskyl2
+
+	clr	atmpcnt		clear results tallies
+	clr	seizcnt
+	clr	escpcnt
+
+	ins
+	rts
+
+jkskyl2	ldaa	#$7f		check for SPACEBAR
 	staa	P1DATA
 	ldaa	KVSPRT
 	anda	#$08
@@ -1452,7 +1477,20 @@ tlykylp	ldaa	#$fb		check for BREAK
 	bne	tlykyl1
 	jmp	exit
 
-tlykyl1	ldaa	#$7f		check for SPACEBAR
+tlykyl1	ldaa	#$fe		check for CONTROL
+	staa	P1DATA
+	ldaa	P2DATA
+	anda	#$02
+	bne	tlykyl2
+
+	clr	atmpcnt		clear results tallies
+	clr	seizcnt
+	clr	escpcnt
+
+	ins
+	jmp	talyscn
+
+tlykyl2	ldaa	#$7f		check for SPACEBAR
 	staa	P1DATA
 	ldaa	KVSPRT
 	anda	#$08
@@ -1463,13 +1501,13 @@ tlykyl1	ldaa	#$7f		check for SPACEBAR
 	beq     tlykylp
 	tsx
 	dec     ,x
-	bne     tlykyl2
+	bne     tlykyl3
 
 	tsx			restore counter for 30 more frames
 	ldaa    #$20
 	staa    ,x
 
-tlykyl2	dec	4,x
+tlykyl3	dec	4,x
 	bne	tlytimr
 	ldaa	3,x
 	beq	tlykyto
