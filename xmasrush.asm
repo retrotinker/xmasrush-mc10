@@ -483,7 +483,7 @@ win	ldaa	seizcnt		bump seizure and escape counts
 
 * play win tone
 
-* wait for spacebar
+* wait for SPACEBAR
 
 	ldd	#$0100
 	pshb
@@ -499,18 +499,71 @@ win.1	jmp	restart
 
 loss	ldaa	#GMFXMTR	bump seizure count, if appropriate
 	bita	gamflgs
-	bne	loss.1
+	bne	loss.0
 
 	ldaa	seizcnt
 	adda	#$01
 	daa
 	staa	seizcnt
 
-loss.1	equ	*
+loss.0	ldaa	#$18		play short "buzz" as audio indicator
+	psha
+	clra
+	psha
+	tsx
+loss.1	brn	*		hard-coded delay, approximately 57 cycles
+	brn	*
+	brn	*
+	brn	*
+	brn	*
+	brn	*
+	brn	*
+loss.2	nop			outer loop re-entry, fix-up for lost cycles
+	nop
+loss.3	nop			outer loop re-entry, fix-up for lost cycles
+	brn	*
+	brn	*
+	brn	*
+	brn	*
+	brn	*
+	brn	*
+	brn	*
+	dec	,x
+	bne	loss.1
+	ldaa	vdgcnfg							4
+	eora	#SQWAVE							2
+	staa	KVSPRT							4
+	staa	vdgcnfg							4	14
 
-* play loss tone
+	ldab    TCSR		check for timer expiry			3
+	andb    #$40							2
+	bne	loss.4							3
+	jmp	loss.3							3	11	25
 
-* wait for spacebar
+loss.4	ldd	TOCR		setup timer for ~1 frame duration	4
+	addd	#FRAMCNT						4
+	pshb								3
+	psha								3
+	pulx								5
+	ldab    TCSR							3
+	stx     TOCR							4	26
+
+	tsx								3
+	dec	1,x							6
+	beq	loss.6							3	12	38 + 25 = 63
+
+	ldaa	#$7f		check for SPACEBAR			2
+	staa	P1DATA							4
+	ldaa	KVSPRT							4
+	anda	#$08							2
+	bne	loss.2							3	15	63 + 15 = 78 => 57 + 21
+
+loss.5	ldaa	KVSPRT
+	anda	#$08
+	beq	loss.5
+
+loss.6	ins
+	ins
 
 	ldd	#$0100
 	pshb
@@ -519,10 +572,10 @@ loss.1	equ	*
 	ins
 	ins
 
-	bcc	loss.2
+	bcc	loss.7
 	jmp	restrt1
 
-loss.2	jmp	restart
+loss.7	jmp	restart
 
 *
 * Move snowman 1
