@@ -655,7 +655,114 @@ snw1mvx	rts
 *
 * Move snowman 2
 *
-snw2mov	rts
+snw2mov	dec	sn2mcnt
+	beq	snw2m.0
+	jmp	snw2mvx
+
+snw2m.0	ldaa	snmdrst
+	staa	sn2mcnt
+
+	ldd	snw2pos
+	cmpa	playpos
+	blt	snw2m.1
+	bgt	snw2m.2
+	bra	snw2m.3
+
+snw2m.1	inca
+	bra	snw2m.3
+
+snw2m.2	deca
+
+snw2m.3	pshb
+	psha
+	jsr	bgcolck
+	bcs	snw2m.4
+
+	ldx	#xmstpos
+	jsr	spcolck
+	bcs	snw2m.4
+
+	tsx
+
+	ldd	snw1pos
+	cmpa	,x
+	bne	snw2m.5
+	cmpb	1,x
+	bne	snw2m.5
+	bra	snw2m.4
+
+	ldd	snw3pos
+	cmpa	,x
+	bne	snw2m.5
+	cmpb	1,x
+	bne	snw2m.5
+	bra	snw2m.4
+
+	ldd	snw4pos
+	cmpa	,x
+	bne	snw2m.5
+	cmpb	1,x
+	bne	snw2m.5
+
+snw2m.4	ins
+	ins
+	ldd	snw2pos
+	bra	snw2m.6
+
+snw2m.5	pula
+	pulb
+	std	snw2pos
+
+snw2m.6	cmpb	playpos+1
+	blt	snw2m.7
+	bgt	snw2m.8
+	bra	snw2m.9
+
+snw2m.7	incb
+	bra	snw2m.9
+
+snw2m.8	decb
+
+snw2m.9	pshb
+	psha
+	jsr	bgcolck
+	bcs	snw2m.a
+
+	ldx	#xmstpos
+	jsr	spcolck
+	bcs	snw2m.a
+
+	tsx
+
+	ldd	snw1pos
+	cmpa	,x
+	bne	snw2m.b
+	cmpb	1,x
+	bne	snw2m.b
+	bra	snw2m.a
+
+	ldd	snw3pos
+	cmpa	,x
+	bne	snw2m.b
+	cmpb	1,x
+	bne	snw2m.b
+	bra	snw2m.a
+
+	ldd	snw4pos
+	cmpa	,x
+	bne	snw2m.b
+	cmpb	1,x
+	bne	snw2m.b
+
+snw2m.a	ins
+	ins
+	bra	snw2mvx
+
+snw2m.b	pula
+	pulb
+	std	snw2pos
+
+snw2mvx	rts
 
 *
 * Move snowman 3
