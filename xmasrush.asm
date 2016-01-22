@@ -40,8 +40,10 @@ GMFSNW4	equ	$10
 
 MVDLR60	equ	$08		60Hz reset value for movement delay counter
 
-#IS1BASE	equ	(TXTBASE+5*32+3)	string display location info
-IS1BASE	equ	$40a3
+SNMDR60	equ	$10		60Hz reset value for snowman move delay counter
+
+#IS1BASE	equ	(TXTBASE+5*32+3)	 string display location info
+IS1BASE	equ	$40a3		string display location info
 #IS2BASE	equ	(TXTBASE+6*32+3)
 IS2BASE	equ	$40c3
 #IS3BASE	equ	(TXTBASE+7*32+3)
@@ -79,8 +81,10 @@ lfsrini	stab	lfsrdat
 	clr	seizcnt
 	clr	escpcnt
 
-	ldaa	#MVDLR60	setup default movement count
+	ldaa	#MVDLR60	setup default movement counts
 	staa	mvdlrst
+	ldaa	#SNMDR60
+	staa	snmdrst
 
 restart	ldd	#$400
 	pshb
@@ -144,6 +148,12 @@ restrt2	staa	atmpcnt
 
 	ldaa	#$01		preset movement delay counter
 	staa	mvdlcnt
+
+	ldaa	snmdrst		reset snowman movement delay counters
+	staa	sn1mcnt
+	staa	sn2mcnt
+	staa	sn3mcnt
+	staa	sn4mcnt
 
 	clra			initialize game status flags
 	oraa	#GMFXMTR
@@ -384,7 +394,10 @@ vcalc.6	ldd	,x		check for pending collision
 vcalc.7	pulx			allow movement
 	stx	playpos
 
-vcalc.8	equ	*
+vcalc.8	jsr	snw1mov		calculate snowman movement targets
+	jsr	snw2mov
+	jsr	snw3mov
+	jsr	snw4mov
 
 vcalc.9	ldx	playpos		check for player collision w/ xmas tree
 	pshx
@@ -500,6 +513,26 @@ loss.1	equ	*
 	jmp	restrt1
 
 loss.2	jmp	restart
+
+*
+* Move snowman 1
+*
+snw1mov	rts
+
+*
+* Move snowman 2
+*
+snw2mov	rts
+
+*
+* Move snowman 3
+*
+snw3mov	rts
+
+*
+* Move snowman 4
+*
+snw4mov	rts
 
 *
 * Show intro screen
@@ -1501,10 +1534,20 @@ bgclmap	rmb	plyfmsz
 playpos	rmb	2
 xmstpos	rmb	2
 
+snw1tgt	rmb     2
+snw3tgt	rmb	2
+snw4tgt	rmb	2
+
 snw1pos	rmb     2
 snw2pos	rmb	2
 snw3pos	rmb	2
 snw4pos	rmb	2
+
+snmdrst	rmb	1
+sn1mcnt	rmb     1
+sn2mcnt	rmb	1
+sn3mcnt	rmb	1
+sn4mcnt	rmb	1
 
 players	rmb	2
 xmsters	rmb	2
