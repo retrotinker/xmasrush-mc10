@@ -88,6 +88,8 @@ lfsrini	stab	lfsrdat
 	clr	seizcnt
 	clr	escpcnt
 
+	jsr	timrcal		manually synchronize timer w/ screen
+
 restart	ldd	#$400
 	pshb
 	psha
@@ -1152,6 +1154,122 @@ snw4m.c	pula
 	std	snw4pos
 
 snw4mvx	rts
+
+*
+* Show timer calibration screen
+*
+timrcal	jsr	txtinit		setup text screen
+
+	jsr	clrtscn		clear text screen
+
+	ldaa	#$40
+	staa	KVSPRT
+	staa	vdgcnfg
+
+timrc.1	ldd	TOCR
+	addd	#3990
+	pshb
+	psha
+	pulx
+	ldab	TCSR
+	stx	TOCR
+timrc.2	ldab	TCSR
+	andb	#$40
+	beq	timrc.2
+
+	ldaa	vdgcnfg
+	eora	#$40
+	staa	>$bfff
+	staa	vdgcnfg
+
+	ldd	TOCR
+	addd	#10944
+	pshb
+	psha
+	pulx
+	ldab	TCSR
+	stx	TOCR
+
+	ldaa	#$7f		check for SPACEBAR
+	staa	P1DATA
+	ldaa	KVSPRT
+	anda	#$08
+	beq	timrc.a
+
+	ldaa	#$f7		check for right arrow
+	staa	P1DATA
+	ldaa	KVSPRT
+	anda	#$04
+	bne	timrc.3
+	ldab	#$01
+	bra	timrc.6
+
+timrc.3	ldaa	#$fd		check for left arrow
+	staa	P1DATA
+	ldaa	KVSPRT
+	anda	#$01
+	bne	timrc.4
+	ldab	#$ff
+	bra	timrc.6
+
+timrc.4	ldaa	#$fb		check for down arrow
+	staa	P1DATA
+	ldaa	KVSPRT
+	anda	#$08
+	bne	timrc.5
+	ldab	#$39
+	bra	timrc.6
+
+timrc.5	ldaa	#$7f		check for up arrow
+	staa	P1DATA
+	ldaa	KVSPRT
+	anda	#$04
+	bne	timrc.9
+	ldab	#$c7
+
+timrc.6	tstb
+	bmi	timrc.7
+	clra
+	bra	timrc.8
+
+timrc.7	ldaa	#$ff
+
+timrc.8	addd	TOCR
+	pshb
+	psha
+	pulx
+	ldab	TCSR
+	stx	TOCR
+
+timrc.9	ldab	TCSR
+	andb	#$40
+	beq	timrc.9
+
+	ldaa	vdgcnfg
+	eora	#$40
+	staa	>$bfff
+	staa	vdgcnfg
+
+	jmp	timrc.1
+
+timrc.a	ldaa	KVSPRT
+	anda	#$08
+	bne	timrc.b
+
+	ldab	TCSR
+	andb	#$40
+	beq	timrc.a
+
+	ldd	TOCR
+	addd	#FRAMCNT
+	pshb
+	psha
+	pulx
+	ldab	TCSR
+	stx	TOCR
+	bra	timrc.a
+
+timrc.b	rts
 
 *
 * Show intro screen
