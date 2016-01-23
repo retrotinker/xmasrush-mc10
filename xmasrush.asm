@@ -2142,7 +2142,7 @@ plfdraw	ldx	#plyfmap	init map pointer value
 
 plfloop	ldab	TCSR
 	andb	#$40
-	beq	plfloop
+	beq	plfloo0
 
 	ldd	TOCR
 	addd	#FRAMCNT
@@ -2152,7 +2152,7 @@ plfloop	ldab	TCSR
 	ldab	TCSR
 	stx	TOCR
 
-	pulx			load next byte of map data
+plfloo0	pulx			load next byte of map data
 	ldaa	,x
 	inx
 	pshx
