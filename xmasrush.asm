@@ -77,14 +77,16 @@ PLAYPOS	equ	$4138
 	ldab	#$01
 lfsrini	stab	lfsrdat
 
-	clr	atmpcnt		clear results tallies
-	clr	seizcnt
-	clr	escpcnt
+	jsr	bgcmini		init background collision map
 
 	ldaa	#MVDLR60	setup default movement counts
 	staa	mvdlrst
 	ldaa	#SNMDR60
 	staa	snmdrst
+
+	clr	atmpcnt		clear results tallies
+	clr	seizcnt
+	clr	escpcnt
 
 restart	ldd	#$400
 	pshb
@@ -120,7 +122,6 @@ restrt2	staa	atmpcnt
 
 	jsr	plfdraw
 
-	jsr	bgcmini		init background collision map
 
 	ldd	#$0f1e		point to grid offset for player
 	std	playpos
@@ -178,18 +179,18 @@ vblank	ldab    TCSR		check for timer expiry
 	bne	vtimer
 	jmp	brkchck
 
-vtimer	ldaa	vdgcnfg		restore CSS for BCMO colors
-	oraa	#$40
-	staa	KVSPRT
-	staa	vdgcnfg
-
-	ldd	TOCR		setup timer for ~1 frame duration
+vtimer	ldd	TOCR		setup timer for ~1 frame duration
 	addd	#FRAMCNT
 	pshb
 	psha
 	pulx
 	ldab    TCSR
 	stx     TOCR
+
+	ldaa	vdgcnfg		restore CSS for BCMO colors
+	oraa	#$40
+	staa	KVSPRT
+	staa	vdgcnfg
 
 verase	ldd	players
 	jsr	tileras
