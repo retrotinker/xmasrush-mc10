@@ -67,6 +67,14 @@ JS1BASE	equ	$40c1
 #JS2BASE	equ	(TXTBASE+8*32+5)
 JS2BASE	equ	$4105
 
+XMRBASE	equ	$404b	(TXTBASE+2*32+11)
+TMCBASE	equ	$4087	(TXTBASE+4*32+7)
+UDABASE	equ	$40e5	(TXTBASE+7*32+5)
+TOMBASE	equ	$4109	(TXTBASE+8*32+9)
+CPGBASE	equ	$4128	(TXTBASE+9*32+8)
+STCBASE	equ	$41a6	(TXTBASE+13*32+6)
+RTXBASE	equ	$41c3	(TXTBASE+14*32+3)
+
 #PLAYPOS	equ	(TXTBASE+(9*32)+24)
 PLAYPOS	equ	$4138
 
@@ -1223,12 +1231,68 @@ timrcal	jsr	txtinit		setup text screen
 
 	jsr	clrtscn		clear text screen
 
+	ldx	#xmrustr
+	pshx
+	ldx	#XMRBASE
+	pshx
+	jsr	drawstr
+	pulx
+	pulx
+
+	ldx	#tmclstr
+	pshx
+	ldx	#TMCBASE
+	pshx
+	jsr	drawstr
+	pulx
+	pulx
+
+	ldx	#udarstr
+	pshx
+	ldx	#UDABASE
+	pshx
+	jsr	drawstr
+	pulx
+	pulx
+
+	ldx	#tomkstr
+	pshx
+	ldx	#TOMBASE
+	pshx
+	jsr	drawstr
+	pulx
+	pulx
+
+	ldx	#cmpgstr
+	pshx
+	ldx	#CPGBASE
+	pshx
+	jsr	drawstr
+	pulx
+	pulx
+
+	ldx	#sptcstr
+	pshx
+	ldx	#STCBASE
+	pshx
+	jsr	drawstr
+	pulx
+	pulx
+
+	ldx	#rmtxstr
+	pshx
+	ldx	#RTXBASE
+	pshx
+	jsr	drawstr
+	pulx
+	pulx
+
 	ldaa	#$40
 	staa	KVSPRT
 	staa	vdgcnfg
 
 timrc.1	ldd	TOCR
-	addd	#3990
+	addd	#3762
 	pshb
 	psha
 	pulx
@@ -1244,34 +1308,18 @@ timrc.2	ldab	TCSR
 	staa	vdgcnfg
 
 	ldd	TOCR
-	addd	#10944
+	addd	#11172
 	pshb
 	psha
 	pulx
 	ldab	TCSR
 	stx	TOCR
 
-	ldaa	#$7f		check for SPACEBAR
+timrc.3	ldaa	#$7f		check for SPACEBAR
 	staa	P1DATA
 	ldaa	KVSPRT
 	anda	#$08
 	beq	timrc.a
-
-	ldaa	#$f7		check for right arrow
-	staa	P1DATA
-	ldaa	KVSPRT
-	anda	#$04
-	bne	timrc.3
-	ldab	#$01
-	bra	timrc.6
-
-timrc.3	ldaa	#$fd		check for left arrow
-	staa	P1DATA
-	ldaa	KVSPRT
-	anda	#$01
-	bne	timrc.4
-	ldab	#$ff
-	bra	timrc.6
 
 timrc.4	ldaa	#$fb		check for down arrow
 	staa	P1DATA
@@ -2478,8 +2526,8 @@ intscrn	fcb	$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80
 instrs1	fcb	$05,$0e,$14,$05,$12,$20,$14,$08,$05,$20,$06,$0f,$12,$05,$13,$14
 	fcb	$2c,$00
 
-instrs2	fcb	$13,$05,$09,$1a,$05,$20,$14,$08,$05,$20,$0c,$01,$13,$14,$20,$18,$0d
-	fcb	$01,$13,$20,$14,$12,$05,$05,$2c,$00
+instrs2	fcb	$13,$05,$09,$1a,$05,$20,$14,$08,$05,$20,$0c,$01,$13,$14,$20,$18
+	fcb	$0d,$01,$13,$20,$14,$12,$05,$05,$2c,$00
 
 instrs3	fcb	$05,$13,$03,$01,$10,$05,$20,$14,$08,$05,$20,$05,$16,$09,$0c,$20
 	fcb	$13,$0e,$0f,$17,$0d,$05,$0e,$2e,$2e,$2e,$00
@@ -2500,6 +2548,28 @@ ctlstr	fcb	$43,$4f,$4e,$54,$52,$4f,$4c,$20,$06,$0f,$12,$20,$0e,$05,$17,$20
 
 brkstr	fcb	$42,$52,$45,$41,$4b,$20,$14,$0f,$20,$05,$0e,$04,$20,$07,$01,$0d
 	fcb	$05,$00
+
+*
+* Timer calibration screen data
+*
+xmrustr	fcb	$18,$0d,$01,$13,$20,$12,$15,$13,$08,$00
+
+tmclstr	fcb	$14,$09,$0d,$05,$12,$20,$03,$01,$0c,$09,$02,$12,$01,$14,$09,$0f
+	fcb	$0e,$00
+
+udarstr	fcb	$15,$13,$05,$20,$15,$10,$20,$01,$0e,$04,$20,$04,$0f,$17,$0e,$20
+	fcb	$01,$12,$12,$0f,$17,$13,$00
+
+tomkstr	fcb	$14,$0f,$20,$0d,$01,$0b,$05,$20,$13,$03,$12,$05,$05,$0e,$00
+
+cmpgstr	fcb	$03,$0f,$0d,$10,$0c,$05,$14,$05,$0c,$19,$20,$07,$12,$05,$05,$0e
+	fcb	$00
+
+sptcstr	fcb	$53,$50,$41,$43,$45,$42,$41,$52,$20,$14,$0f,$20,$03,$0f,$0e,$14
+	fcb	$09,$0e,$15,$05,$00
+
+rmtxstr	fcb	$12,$05,$13,$05,$14,$20,$0d,$03,$2d,$31,$30,$20,$14,$0f,$20,$05
+	fcb	$0e,$04,$20,$10,$12,$0f,$07,$12,$01,$0d,$00
 
 inpflgs	rmb	1
 gamflgs	rmb	1
