@@ -118,9 +118,9 @@ restrt2	staa	atmpcnt
 
 	jsr	instscn
 
-restrt3	ldab	TCSR
+tmsyn.1	ldab	TCSR
 	andb	#$40
-	beq	restrt3
+	beq	tmsyn.1
 
 	ldd	TOCR
 	addd	#FRAMCNT
@@ -134,9 +134,9 @@ restrt3	ldab	TCSR
 
 	jsr	cg3init
 
-restrt4	ldab	TCSR
+tmsyn.2	ldab	TCSR
 	andb	#$40
-	beq	restrt4
+	beq	tmsyn.2
 
 	ldd	TOCR
 	addd	#FRAMCNT
@@ -147,18 +147,6 @@ restrt4	ldab	TCSR
 	stx	TOCR
 
 	jsr	plfdraw
-
-restrt5	ldab	TCSR
-	andb	#$40
-	beq	restrt5
-
-	ldd	TOCR
-	addd	#FRAMCNT
-	pshb
-	psha
-	pulx
-	ldab	TCSR
-	stx	TOCR
 
 	ldd	#$0f1e		point to grid offset for player
 	std	playpos
