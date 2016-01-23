@@ -118,12 +118,47 @@ restrt2	staa	atmpcnt
 
 	jsr	instscn
 
+restrt3	ldab	TCSR
+	andb	#$40
+	beq	restrt3
+
+	ldd	TOCR
+	addd	#FRAMCNT
+	pshb
+	psha
+	pulx
+	ldab	TCSR
+	stx	TOCR
+
 	jsr	clrscrn
 
 	jsr	cg3init
 
+restrt4	ldab	TCSR
+	andb	#$40
+	beq	restrt4
+
+	ldd	TOCR
+	addd	#FRAMCNT
+	pshb
+	psha
+	pulx
+	ldab	TCSR
+	stx	TOCR
+
 	jsr	plfdraw
 
+restrt5	ldab	TCSR
+	andb	#$40
+	beq	restrt5
+
+	ldd	TOCR
+	addd	#FRAMCNT
+	pshb
+	psha
+	pulx
+	ldab	TCSR
+	stx	TOCR
 
 	ldd	#$0f1e		point to grid offset for player
 	std	playpos
@@ -470,12 +505,38 @@ brkchck	ldaa	#$fb		check for BREAK
 	bne	vloop
 brkck.1	ldaa	P2DATA
 	anda	#$02
+	bne	brkck.2
+
+	ldab	TCSR
+	andb	#$40
 	beq	brkck.1
-	jmp	loss
+
+	ldd	TOCR
+	addd	#FRAMCNT
+	pshb
+	psha
+	pulx
+	ldab	TCSR
+	stx	TOCR
+	bra	brkck.1
+
+brkck.2	jmp	loss
 
 vloop	jmp	vblank
 
-win	ldaa	seizcnt		bump seizure and escape counts
+win	ldab	TCSR
+	andb	#$40
+	beq	win
+
+	ldd	TOCR
+	addd	#FRAMCNT
+	pshb
+	psha
+	pulx
+	ldab	TCSR
+	stx	TOCR
+
+	ldaa	seizcnt		bump seizure and escape counts
 	adda	#$01
 	daa
 	staa	seizcnt
@@ -557,7 +618,19 @@ win.6	ins
 
 win.7	jmp	restart
 
-loss	ldaa	#GMFXMTR	bump seizure count, if appropriate
+loss	ldab	TCSR
+	andb	#$40
+	beq	loss
+
+	ldd	TOCR
+	addd	#FRAMCNT
+	pshb
+	psha
+	pulx
+	ldab	TCSR
+	stx	TOCR
+
+	ldaa	#GMFXMTR	bump seizure count, if appropriate
 	bita	gamflgs
 	bne	loss.0
 
@@ -1274,7 +1347,19 @@ timrc.b	rts
 *
 * Show intro screen
 *
-intro	jsr	txtinit		setup text screen
+intro	ldab	TCSR
+	andb	#$40
+	beq	intro
+
+	ldd	TOCR
+	addd	#FRAMCNT
+	pshb
+	psha
+	pulx
+	ldab	TCSR
+	stx	TOCR
+
+	jsr	txtinit		setup text screen
 
 	ldx	#intscrn	write intro screen data to buffer
 	pshx
@@ -1282,7 +1367,21 @@ intro	jsr	txtinit		setup text screen
 	pshx
 	tsx
 	ldx	2,x
-intsclp	ldaa	,x
+intsclp	ldab	TCSR
+	andb	#$40
+	beq	intsl.1
+
+	ldd	TOCR
+	addd	#FRAMCNT
+	pshb
+	psha
+	pulx
+	ldab	TCSR
+	stx	TOCR
+	tsx
+	ldx	2,x
+
+intsl.1	ldaa	,x
 	tsx
 	ldx	,x
 	staa	,x
@@ -1302,6 +1401,10 @@ intsclp	ldaa	,x
 
 	ldaa	#$20		setup counter for 30 frames
 	psha
+
+inttmst	ldab	TCSR
+	andb	#$40
+	beq	inttmst
 inttimr	ldd	TOCR		setup timer for ~1 frame duration
 	addd	#FRAMCNT
 	pshb
@@ -1368,15 +1471,41 @@ intkyto	clc
 
 intkypr	ldaa	KVSPRT
 	anda	#$08
+	bne	intkp.1
+
+	ldab	TCSR
+	andb	#$40
 	beq	intkypr
-	sec
+
+	ldd	TOCR
+	addd	#FRAMCNT
+	pshb
+	psha
+	pulx
+	ldab	TCSR
+	stx	TOCR
+	bra	intkypr
+
+intkp.1	sec
 intkyex	ins
 	rts
 
 *
 * Chide player into resetting statistics
 *
-jokescn	jsr	txtinit		setup text screen
+jokescn	ldab	TCSR
+	andb	#$40
+	beq	jokescn
+
+	ldd	TOCR
+	addd	#FRAMCNT
+	pshb
+	psha
+	pulx
+	ldab	TCSR
+	stx	TOCR
+
+	jsr	txtinit		setup text screen
 
 	jsr	clrtscn		clear text screen
 
@@ -1398,6 +1527,10 @@ jokescn	jsr	txtinit		setup text screen
 
 	ldaa	#$80		setup counter for 128 frames
 	psha
+
+jkstmst	ldab	TCSR
+	andb	#$40
+	beq	jkstmst
 jkstimr	ldd	TOCR		setup timer for ~1 frame duration
 	addd	#FRAMCNT
 	pshb
@@ -1441,14 +1574,40 @@ jkskyl2	ldaa	#$7f		check for SPACEBAR
 
 jkskyex	ldaa	KVSPRT
 	anda	#$08
+	bne	jkskx.1
+
+	ldab	TCSR
+	andb	#$40
 	beq	jkskyex
-	ins
+
+	ldd	TOCR
+	addd	#FRAMCNT
+	pshb
+	psha
+	pulx
+	ldab	TCSR
+	stx	TOCR
+	bra	jkskyex
+
+jkskx.1	ins
 	rts
 
 *
 * Show instruction screen
 *
-instscn	jsr	txtinit		setup text screen
+instscn	ldab	TCSR
+	andb	#$40
+	beq	instscn
+
+	ldd	TOCR
+	addd	#FRAMCNT
+	pshb
+	psha
+	pulx
+	ldab	TCSR
+	stx	TOCR
+
+	jsr	txtinit		setup text screen
 
 	jsr	clrtscn		clear text screen
 
@@ -1486,6 +1645,9 @@ instscn	jsr	txtinit		setup text screen
 
 	ldaa	#$80		setup counter for 128 frames
 	psha
+instmst	ldab	TCSR
+	andb	#$40
+	beq	instmst
 instimr	ldd	TOCR		setup timer for ~1 frame duration
 	addd	#FRAMCNT
 	pshb
@@ -1516,14 +1678,40 @@ inskyl1	ldaa	#$7f		check for SPACEBAR
 
 inskyex	ldaa	KVSPRT
 	anda	#$08
+	bne	inskx.1
+
+	ldab	TCSR
+	andb	#$40
 	beq	inskyex
-	ins
+
+	ldd	TOCR
+	addd	#FRAMCNT
+	pshb
+	psha
+	pulx
+	ldab	TCSR
+	stx	TOCR
+	bra	inskyex
+
+inskx.1	ins
 	rts
 
 *
 * Show tally screen
 *
-talyscn	jsr	txtinit		setup text screen
+talyscn	ldab	TCSR
+	andb	#$40
+	beq	talyscn
+
+	ldd	TOCR
+	addd	#FRAMCNT
+	pshb
+	psha
+	pulx
+	ldab	TCSR
+	stx	TOCR
+
+	jsr	txtinit		setup text screen
 
 	jsr	clrtscn		clear text screen
 
@@ -1581,6 +1769,9 @@ talyscn	jsr	txtinit		setup text screen
 
 	ldaa	#$20		setup counter for 30 frames
 	psha
+tlytmst	ldab	TCSR
+	andb	#$40
+	beq	tlytmst
 tlytimr	ldd	TOCR		setup timer for ~1 frame duration
 	addd	#FRAMCNT
 	pshb
@@ -1639,8 +1830,22 @@ tlykyto	clc
 
 tlykypr	ldaa	KVSPRT
 	anda	#$08
+	bne	tlykp.1
+
+	ldab	TCSR
+	andb	#$40
 	beq	tlykypr
-	sec
+
+	ldd	TOCR
+	addd	#FRAMCNT
+	pshb
+	psha
+	pulx
+	ldab	TCSR
+	stx	TOCR
+	bra	tlykypr
+
+tlykp.1	sec
 tlykyex	ins
 	rts
 
@@ -1935,7 +2140,19 @@ plfdraw	ldx	#plyfmap	init map pointer value
 	psha
 	pshx
 
-plfloop	pulx			load next byte of map data
+plfloop	ldab	TCSR
+	andb	#$40
+	beq	plfloop
+
+	ldd	TOCR
+	addd	#FRAMCNT
+	pshb
+	psha
+	pulx
+	ldab	TCSR
+	stx	TOCR
+
+	pulx			load next byte of map data
 	ldaa	,x
 	inx
 	pshx
