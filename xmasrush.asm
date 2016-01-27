@@ -17,7 +17,11 @@ RESET	equ	$fffe
 
 SQWAVE	equ	$80
 
-FRAMCNT	equ	14934
+FRMCT60	equ	14934		60Hz frame timer value
+
+VBLNK60	equ	3762		60Hz vblank timer value
+
+VACTCNT	equ	FRMCT60-VBLNK60	same for both 50Hz and 60Hz
 
 TXTBASE	equ	$4000		memory map-related definitions
 TXTEND	equ	$4200
@@ -87,6 +91,11 @@ lfsrini	stab	lfsrdat
 
 	jsr	bgcmini		init background collision map
 
+	ldd	#FRMCT60	setup default frame timing count
+	std	framcnt
+	ldd	#VBLNK60
+	std	vblkcnt
+
 	ldaa	#MVDLR60	setup default movement counts
 	staa	mvdlrst
 	ldaa	#SNMDR60
@@ -131,7 +140,7 @@ tmsyn.1	ldab	TCSR
 	beq	tmsyn.1
 
 	ldd	TOCR
-	addd	#FRAMCNT
+	addd	framcnt
 	pshb
 	psha
 	pulx
@@ -147,7 +156,7 @@ tmsyn.2	ldab	TCSR
 	beq	tmsyn.2
 
 	ldd	TOCR
-	addd	#FRAMCNT
+	addd	framcnt
 	pshb
 	psha
 	pulx
@@ -213,7 +222,7 @@ vblank	ldab    TCSR		check for timer expiry
 	jmp	brkchck
 
 vtimer	ldd	TOCR		setup timer for ~1 frame duration
-	addd	#FRAMCNT
+	addd	framcnt
 	pshb
 	psha
 	pulx
@@ -508,7 +517,7 @@ brkck.1	ldaa	P2DATA
 	beq	brkck.1
 
 	ldd	TOCR
-	addd	#FRAMCNT
+	addd	framcnt
 	pshb
 	psha
 	pulx
@@ -525,7 +534,7 @@ win	ldab	TCSR
 	beq	win
 
 	ldd	TOCR
-	addd	#FRAMCNT
+	addd	framcnt
 	pshb
 	psha
 	pulx
@@ -555,8 +564,8 @@ win.1	brn	*		hard-coded delay, approximately 57 cycles
 	brn	*
 	brn	*
 	brn	*
-win.2	nop			outer loop re-entry, fix-up for lost cycles
 	nop
+win.2	nop			outer loop re-entry, fix-up for lost cycles
 win.3	nop			outer loop re-entry, fix-up for lost cycles
 	brn	*
 	brn	*
@@ -578,22 +587,22 @@ win.3	nop			outer loop re-entry, fix-up for lost cycles
 	jmp	win.3							3	11	31
 
 win.4	ldd	TOCR		setup timer for ~1 frame duration	4
-	addd	#FRAMCNT						4
+	addd	framcnt							6
 	pshb								3
 	psha								3
 	pulx								5
 	ldab    TCSR							3
-	stx     TOCR							4	26
+	stx     TOCR							4	28
 
 	tsx								3
 	dec	1,x							6
-	beq	win.6							3	12	38 + 31 = 69
+	beq	win.6							3	12	40 + 31 = 71
 
 	ldaa	#$7f		check for SPACEBAR			2
 	staa	P1DATA							4
 	ldaa	KVSPRT							4
 	anda	#$08							2
-	bne	win.2							3	15	69 + 15 = 84 => 57 + 27
+	bne	win.2							3	15	71 + 15 = 86 => 57 + 29
 
 win.5	ldaa	KVSPRT
 	anda	#$08
@@ -619,7 +628,7 @@ loss	ldab	TCSR
 	beq	loss
 
 	ldd	TOCR
-	addd	#FRAMCNT
+	addd	framcnt
 	pshb
 	psha
 	pulx
@@ -647,8 +656,8 @@ loss.1	brn	*		hard-coded delay, approximately 57 cycles
 	brn	*
 	brn	*
 	brn	*
-loss.2	nop			outer loop re-entry, fix-up for lost cycles
 	nop
+loss.2	nop			outer loop re-entry, fix-up for lost cycles
 loss.3	nop			outer loop re-entry, fix-up for lost cycles
 	brn	*
 	brn	*
@@ -670,22 +679,22 @@ loss.3	nop			outer loop re-entry, fix-up for lost cycles
 	jmp	loss.3							3	11	25
 
 loss.4	ldd	TOCR		setup timer for ~1 frame duration	4
-	addd	#FRAMCNT						4
+	addd	framcnt							6
 	pshb								3
 	psha								3
 	pulx								5
 	ldab    TCSR							3
-	stx     TOCR							4	26
+	stx     TOCR							4	28
 
 	tsx								3
 	dec	1,x							6
-	beq	loss.6							3	12	38 + 25 = 63
+	beq	loss.6							3	12	40 + 25 = 65
 
 	ldaa	#$7f		check for SPACEBAR			2
 	staa	P1DATA							4
 	ldaa	KVSPRT							4
 	anda	#$08							2
-	bne	loss.2							3	15	63 + 15 = 78 => 57 + 21
+	bne	loss.2							3	15	65 + 15 = 80 => 57 + 23
 
 loss.5	ldaa	KVSPRT
 	anda	#$08
@@ -1292,7 +1301,7 @@ timrcal	jsr	txtinit		setup text screen
 	staa	vdgcnfg
 
 timrc.1	ldd	TOCR
-	addd	#3762
+	addd	vblkcnt
 	pshb
 	psha
 	pulx
@@ -1308,7 +1317,7 @@ timrc.2	ldab	TCSR
 	staa	vdgcnfg
 
 	ldd	TOCR
-	addd	#11172
+	addd	#VACTCNT
 	pshb
 	psha
 	pulx
@@ -1370,7 +1379,7 @@ timrc.a	ldaa	KVSPRT
 	beq	timrc.a
 
 	ldd	TOCR
-	addd	#FRAMCNT
+	addd	framcnt
 	pshb
 	psha
 	pulx
@@ -1388,7 +1397,7 @@ intro	ldab	TCSR
 	beq	intro
 
 	ldd	TOCR
-	addd	#FRAMCNT
+	addd	framcnt
 	pshb
 	psha
 	pulx
@@ -1408,7 +1417,7 @@ intsclp	ldab	TCSR
 	beq	intsl.1
 
 	ldd	TOCR
-	addd	#FRAMCNT
+	addd	framcnt
 	pshb
 	psha
 	pulx
@@ -1442,7 +1451,7 @@ inttmst	ldab	TCSR
 	andb	#$40
 	beq	inttmst
 inttimr	ldd	TOCR		setup timer for ~1 frame duration
-	addd	#FRAMCNT
+	addd	framcnt
 	pshb
 	psha
 	pulx
@@ -1514,7 +1523,7 @@ intkypr	ldaa	KVSPRT
 	beq	intkypr
 
 	ldd	TOCR
-	addd	#FRAMCNT
+	addd	framcnt
 	pshb
 	psha
 	pulx
@@ -1534,7 +1543,7 @@ jokescn	ldab	TCSR
 	beq	jokescn
 
 	ldd	TOCR
-	addd	#FRAMCNT
+	addd	framcnt
 	pshb
 	psha
 	pulx
@@ -1568,7 +1577,7 @@ jkstmst	ldab	TCSR
 	andb	#$40
 	beq	jkstmst
 jkstimr	ldd	TOCR		setup timer for ~1 frame duration
-	addd	#FRAMCNT
+	addd	framcnt
 	pshb
 	psha
 	pulx
@@ -1617,7 +1626,7 @@ jkskyex	ldaa	KVSPRT
 	beq	jkskyex
 
 	ldd	TOCR
-	addd	#FRAMCNT
+	addd	framcnt
 	pshb
 	psha
 	pulx
@@ -1636,7 +1645,7 @@ instscn	ldab	TCSR
 	beq	instscn
 
 	ldd	TOCR
-	addd	#FRAMCNT
+	addd	framcnt
 	pshb
 	psha
 	pulx
@@ -1685,7 +1694,7 @@ instmst	ldab	TCSR
 	andb	#$40
 	beq	instmst
 instimr	ldd	TOCR		setup timer for ~1 frame duration
-	addd	#FRAMCNT
+	addd	framcnt
 	pshb
 	psha
 	pulx
@@ -1721,7 +1730,7 @@ inskyex	ldaa	KVSPRT
 	beq	inskyex
 
 	ldd	TOCR
-	addd	#FRAMCNT
+	addd	framcnt
 	pshb
 	psha
 	pulx
@@ -1740,7 +1749,7 @@ talyscn	ldab	TCSR
 	beq	talyscn
 
 	ldd	TOCR
-	addd	#FRAMCNT
+	addd	framcnt
 	pshb
 	psha
 	pulx
@@ -1809,7 +1818,7 @@ tlytmst	ldab	TCSR
 	andb	#$40
 	beq	tlytmst
 tlytimr	ldd	TOCR		setup timer for ~1 frame duration
-	addd	#FRAMCNT
+	addd	framcnt
 	pshb
 	psha
 	pulx
@@ -1873,7 +1882,7 @@ tlykypr	ldaa	KVSPRT
 	beq	tlykypr
 
 	ldd	TOCR
-	addd	#FRAMCNT
+	addd	framcnt
 	pshb
 	psha
 	pulx
@@ -2181,7 +2190,7 @@ plfloop	ldab	TCSR
 	beq	plfloo0
 
 	ldd	TOCR
-	addd	#FRAMCNT
+	addd	framcnt
 	pshb
 	psha
 	pulx
@@ -2578,6 +2587,9 @@ lfsrdat	rmb	1
 
 mvdlrst	rmb	1
 mvdlcnt	rmb	1
+
+framcnt	rmb	2
+vblkcnt	rmb	2
 
 bgclmap	rmb	plyfmsz
 
