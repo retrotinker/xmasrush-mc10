@@ -65,8 +65,8 @@ ATSTBAS	equ	$408a
 SZSTBAS	equ	$40ca
 #ESSTBAS	equ	(TXTBASE+8*32+11)
 ESSTBAS	equ	$410b
-#CTSTBAS	equ	(TXTBASE+13*32+6)
-CTSTBAS	equ	$41a6
+#CTSTBAS	equ	(TXTBASE+13*32+5)
+CTSTBAS	equ	$41a5
 
 #JS1BASE	equ	(TXTBASE+6*32+1)
 JS1BASE	equ	$40c1
@@ -1837,7 +1837,7 @@ talyscn	ldab	TCSR
 	ldaa	escpcnt
 	jsr	bcdshow
 
-	ldx	#ctlstr
+	ldx	#ctrlstr
 	pshx
 	ldx	#CTSTBAS
 	pshx
@@ -2578,7 +2578,7 @@ seizstr	fcb	$13,$05,$09,$1a,$15,$12,$05,$13,$00
 
 escpstr	fcb	$05,$13,$03,$01,$10,$05,$13,$00
 
-ctlstr	fcb	$43,$4f,$4e,$54,$52,$4f,$4c,$20,$06,$0f,$12,$20,$0e,$05,$17,$20
+ctrlstr	fcb	$43,$4f,$4e,$54,$52,$4f,$4c,$20,$06,$0f,$12,$20,$0e,$05,$17,$20
 	fcb	$10,$0c,$01,$19,$05,$12,$00
 
 *
