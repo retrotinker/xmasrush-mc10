@@ -18,8 +18,10 @@ RESET	equ	$fffe
 SQWAVE	equ	$80
 
 FRMCT60	equ	14934		60Hz frame timer value
+FRMCT50	equ	17784		50Hz frame timer value
 
 VBLNK60	equ	3762		60Hz vblank timer value
+VBLNK50	equ	6612		50Hz vblank timer value
 
 VACTCNT	equ	FRMCT60-VBLNK60	same for both 50Hz and 60Hz
 
@@ -43,8 +45,10 @@ GMFSNW3	equ	$08
 GMFSNW4	equ	$10
 
 MVDLR60	equ	$08		60Hz reset value for movement delay counter
+MVDLR50	equ	$07		50Hz reset value for movement delay counter
 
 SNMDR60	equ	$10		60Hz reset value for snowman move delay counter
+SNMDR50	equ	$0d		50Hz reset value for snowman move delay counter
 
 #IS1BASE	equ	(TXTBASE+5*32+3)	 string display location info
 IS1BASE	equ	$40a3		string display location info
@@ -71,12 +75,13 @@ JS1BASE	equ	$40c1
 #JS2BASE	equ	(TXTBASE+8*32+5)
 JS2BASE	equ	$4105
 
-XMRBASE	equ	$404b	(TXTBASE+2*32+11)
-TMCBASE	equ	$4087	(TXTBASE+4*32+7)
-UDABASE	equ	$40e5	(TXTBASE+7*32+5)
-TOMBASE	equ	$4109	(TXTBASE+8*32+9)
-CPGBASE	equ	$4128	(TXTBASE+9*32+8)
-STCBASE	equ	$41a6	(TXTBASE+13*32+6)
+XMRBASE	equ	$402b	(TXTBASE+1*32+11)
+TMCBASE	equ	$4067	(TXTBASE+3*32+7)
+UDABASE	equ	$40c5	(TXTBASE+6*32+5)
+TOMBASE	equ	$40e9	(TXTBASE+7*32+9)
+CPGBASE	equ	$4108	(TXTBASE+8*32+8)
+STCBASE	equ	$4166	(TXTBASE+11*32+6)
+SHSBASE	equ	$41a3	(TXTBASE+13*32+3)
 RTXBASE	equ	$41c3	(TXTBASE+14*32+3)
 
 #PLAYPOS	equ	(TXTBASE+(9*32)+24)
@@ -1280,6 +1285,27 @@ timrcal	jsr	txtinit		setup text screen
 	pulx
 	pulx
 
+	ldx	#shftstr
+	pshx
+	ldx	#SHSBASE
+	pshx
+	jsr	drawstr
+	pulx
+	pulx
+
+	ldaa	mvdlrst
+	cmpa	#MVDLR60
+	bne	timrc.1
+	ldx	#tm60str
+	bra	timrc.2
+timrc.1	ldx	#tm50str
+timrc.2	pshx
+	ldx	#SHSBASE+22
+	pshx
+	jsr	drawstr
+	pulx
+	pulx
+
 	ldx	#sptcstr
 	pshx
 	ldx	#STCBASE
@@ -1300,16 +1326,16 @@ timrcal	jsr	txtinit		setup text screen
 	staa	KVSPRT
 	staa	vdgcnfg
 
-timrc.1	ldd	TOCR
+timrc.3	ldd	TOCR
 	addd	vblkcnt
 	pshb
 	psha
 	pulx
 	ldab	TCSR
 	stx	TOCR
-timrc.2	ldab	TCSR
+timrc.4	ldab	TCSR
 	andb	#$40
-	beq	timrc.2
+	beq	timrc.4
 
 	ldaa	vdgcnfg
 	eora	#$40
@@ -1324,59 +1350,97 @@ timrc.2	ldab	TCSR
 	ldab	TCSR
 	stx	TOCR
 
-timrc.3	ldaa	#$7f		check for SPACEBAR
+	ldaa	#$7f		check for SHIFT
 	staa	P1DATA
-	ldaa	KVSPRT
-	anda	#$08
-	beq	timrc.a
+	ldaa	P2DATA
+	anda	#$02
+	bne	timrc.8
 
-timrc.4	ldaa	#$fb		check for down arrow
+	ldaa	mvdlrst
+	cmpa	#MVDLR60
+	bne	timrc.6
+
+timrc.5	ldd	#FRMCT50	setup 50Hz frame timing count
+	std	framcnt
+	ldd	#VBLNK50
+	std	vblkcnt
+
+	ldaa	#MVDLR50	setup 50Hz movement counts
+	staa	mvdlrst
+	ldaa	#SNMDR50
+	staa	snmdrst
+
+	bra	timrc.7
+
+timrc.6	ldd	#FRMCT60	setup 60Hz frame timing count
+	std	framcnt
+	ldd	#VBLNK60
+	std	vblkcnt
+
+	ldaa	#MVDLR60	setup 60Hz movement counts
+	staa	mvdlrst
+	ldaa	#SNMDR60
+	staa	snmdrst
+
+timrc.7	ldaa	P2DATA
+	anda	#$02
+	beq	timrc.7
+
+	jmp	timrcal
+
+timrc.8	ldaa	#$7f		check for SPACEBAR
 	staa	P1DATA
 	ldaa	KVSPRT
 	anda	#$08
-	bne	timrc.5
+	beq	timrc.e
+
+	ldaa	#$fb		check for down arrow
+	staa	P1DATA
+	ldaa	KVSPRT
+	anda	#$08
+	bne	timrc.9
 	ldab	#$39
-	bra	timrc.6
+	bra	timrc.a
 
-timrc.5	ldaa	#$7f		check for up arrow
+timrc.9	ldaa	#$7f		check for up arrow
 	staa	P1DATA
 	ldaa	KVSPRT
 	anda	#$04
-	bne	timrc.9
+	bne	timrc.d
 	ldab	#$c7
 
-timrc.6	tstb
-	bmi	timrc.7
+timrc.a	tstb
+	bmi	timrc.b
 	clra
-	bra	timrc.8
+	bra	timrc.c
 
-timrc.7	ldaa	#$ff
+timrc.b	ldaa	#$ff
 
-timrc.8	addd	TOCR
+timrc.c	addd	TOCR
 	pshb
 	psha
 	pulx
 	ldab	TCSR
 	stx	TOCR
 
-timrc.9	ldab	TCSR
+timrc.d	ldab	TCSR
 	andb	#$40
-	beq	timrc.9
+	beq	timrc.d
 
 	ldaa	vdgcnfg
 	eora	#$40
 	staa	>$bfff
 	staa	vdgcnfg
 
-	jmp	timrc.1
+	jmp	timrc.3
 
-timrc.a	ldaa	KVSPRT
+timrc.e	ldaa	KVSPRT
 	anda	#$08
-	bne	timrc.b
+	bne	timrc.f
 
 	ldab	TCSR
 	andb	#$40
-	beq	timrc.a
+	beq	timrc.e
 
 	ldd	TOCR
 	addd	framcnt
@@ -1385,9 +1449,9 @@ timrc.a	ldaa	KVSPRT
 	pulx
 	ldab	TCSR
 	stx	TOCR
-	bra	timrc.a
+	bra	timrc.e
 
-timrc.b	rts
+timrc.f	rts
 
 *
 * Show intro screen
@@ -2579,6 +2643,12 @@ sptcstr	fcb	$53,$50,$41,$43,$45,$42,$41,$52,$20,$14,$0f,$20,$03,$0f,$0e,$14
 
 rmtxstr	fcb	$12,$05,$13,$05,$14,$20,$0d,$03,$2d,$31,$30,$20,$14,$0f,$20,$05
 	fcb	$0e,$04,$20,$10,$12,$0f,$07,$12,$01,$0d,$00
+
+shftstr	fcb	$53,$48,$49,$46,$54,$20,$03,$08,$01,$0e,$07,$05,$13,$20,$14,$09
+	fcb	$0d,$09,$0e,$07,$3a,$00
+
+tm50str	fcb	$35,$30,$08,$1a,$00
+tm60str	fcb	$36,$30,$08,$1a,$00
 
 inpflgs	rmb	1
 gamflgs	rmb	1
