@@ -67,8 +67,6 @@ SZSTBAS	equ	$40ca
 ESSTBAS	equ	$410b
 #CTSTBAS	equ	(TXTBASE+13*32+6)
 CTSTBAS	equ	$41a6
-#BRSTBAS	equ	(TXTBASE+14*32+8)
-BRSTBAS	equ	$41c8
 
 #JS1BASE	equ	(TXTBASE+6*32+1)
 JS1BASE	equ	$40c1
@@ -82,7 +80,7 @@ TOMBASE	equ	$40e9	(TXTBASE+7*32+9)
 CPGBASE	equ	$4108	(TXTBASE+8*32+8)
 STCBASE	equ	$4166	(TXTBASE+11*32+6)
 SHSBASE	equ	$41a3	(TXTBASE+13*32+3)
-RTXBASE	equ	$41c3	(TXTBASE+14*32+3)
+RTXBASE	equ	$41c2	(TXTBASE+14*32+2)
 
 #PLAYPOS	equ	(TXTBASE+(9*32)+24)
 PLAYPOS	equ	$4138
@@ -1522,18 +1520,11 @@ inttimr	ldd	TOCR		setup timer for ~1 frame duration
 	ldab	TCSR
 	stx	TOCR
 
-intkylp	ldaa	#$fb		check for BREAK
+intkylp	ldaa	#$fe		check for CONTROL
 	staa	P1DATA
 	ldaa	P2DATA
 	anda	#$02
 	bne	intkyl1
-	jmp	exit
-
-intkyl1	ldaa	#$fe		check for CONTROL
-	staa	P1DATA
-	ldaa	P2DATA
-	anda	#$02
-	bne	intkyl2
 
 	clr	atmpcnt		clear results tallies
 	clr	seizcnt
@@ -1541,7 +1532,7 @@ intkyl1	ldaa	#$fe		check for CONTROL
 
 	bra	intkyto
 
-intkyl2	ldaa	#$7f		check for SPACEBAR
+intkyl1	ldaa	#$7f		check for SPACEBAR
 	staa	P1DATA
 	ldaa	KVSPRT
 	anda	#$08
@@ -1648,18 +1639,11 @@ jkstimr	ldd	TOCR		setup timer for ~1 frame duration
 	ldab	TCSR
 	stx	TOCR
 
-jkskylp	ldaa	#$fb		check for BREAK
+jkskylp	ldaa	#$fe		check for CONTROL
 	staa	P1DATA
 	ldaa	P2DATA
 	anda	#$02
 	bne	jkskyl1
-	jmp	exit
-
-jkskyl1	ldaa	#$fe		check for CONTROL
-	staa	P1DATA
-	ldaa	P2DATA
-	anda	#$02
-	bne	jkskyl2
 
 	clr	atmpcnt		clear results tallies
 	clr	seizcnt
@@ -1668,7 +1652,7 @@ jkskyl1	ldaa	#$fe		check for CONTROL
 	ins
 	rts
 
-jkskyl2	ldaa	#$7f		check for SPACEBAR
+jkskyl1	ldaa	#$7f		check for SPACEBAR
 	staa	P1DATA
 	ldaa	KVSPRT
 	anda	#$08
@@ -1765,14 +1749,7 @@ instimr	ldd	TOCR		setup timer for ~1 frame duration
 	ldab	TCSR
 	stx	TOCR
 
-inskylp	ldaa	#$fb		check for BREAK
-	staa	P1DATA
-	ldaa	P2DATA
-	anda	#$02
-	bne	inskyl1
-	jmp	exit
-
-inskyl1	ldaa	#$7f		check for SPACEBAR
+inskylp	ldaa	#$7f		check for SPACEBAR
 	staa	P1DATA
 	ldaa	KVSPRT
 	anda	#$08
@@ -1868,9 +1845,9 @@ talyscn	ldab	TCSR
 	pulx
 	pulx
 
-	ldx	#brkstr
+	ldx	#rmtxstr
 	pshx
-	ldx	#BRSTBAS
+	ldx	#RTXBASE
 	pshx
 	jsr	drawstr
 	pulx
@@ -1889,18 +1866,11 @@ tlytimr	ldd	TOCR		setup timer for ~1 frame duration
 	ldab	TCSR
 	stx	TOCR
 
-tlykylp	ldaa	#$fb		check for BREAK
+tlykylp	ldaa	#$fe		check for CONTROL
 	staa	P1DATA
 	ldaa	P2DATA
 	anda	#$02
 	bne	tlykyl1
-	jmp	exit
-
-tlykyl1	ldaa	#$fe		check for CONTROL
-	staa	P1DATA
-	ldaa	P2DATA
-	anda	#$02
-	bne	tlykyl2
 
 	clr	atmpcnt		clear results tallies
 	clr	seizcnt
@@ -1909,7 +1879,7 @@ tlykyl1	ldaa	#$fe		check for CONTROL
 	ins
 	jmp	talyscn
 
-tlykyl2	ldaa	#$7f		check for SPACEBAR
+tlykyl1	ldaa	#$7f		check for SPACEBAR
 	staa	P1DATA
 	ldaa	KVSPRT
 	anda	#$08
@@ -2467,14 +2437,6 @@ lfsrget	ldaa	lfsrdat		Get MSB of LFSR data
 	rts
 
 *
-* Exit to Micro Color BASIC
-*
-exit	jsr	clrscrn
-
-	ldx	RESET
-	jmp	,x
-
-*
 * Data Declarations
 *
 snowman	fcb	$05,$40
@@ -2619,9 +2581,6 @@ escpstr	fcb	$05,$13,$03,$01,$10,$05,$13,$00
 ctlstr	fcb	$43,$4f,$4e,$54,$52,$4f,$4c,$20,$06,$0f,$12,$20,$0e,$05,$17,$20
 	fcb	$10,$0c,$01,$19,$05,$12,$00
 
-brkstr	fcb	$42,$52,$45,$41,$4b,$20,$14,$0f,$20,$05,$0e,$04,$20,$07,$01,$0d
-	fcb	$05,$00
-
 *
 * Timer calibration screen data
 *
@@ -2641,8 +2600,8 @@ cmpgstr	fcb	$03,$0f,$0d,$10,$0c,$05,$14,$05,$0c,$19,$20,$07,$12,$05,$05,$0e
 sptcstr	fcb	$53,$50,$41,$43,$45,$42,$41,$52,$20,$14,$0f,$20,$03,$0f,$0e,$14
 	fcb	$09,$0e,$15,$05,$00
 
-rmtxstr	fcb	$12,$05,$13,$05,$14,$20,$0d,$03,$2d,$31,$30,$20,$14,$0f,$20,$05
-	fcb	$0e,$04,$20,$10,$12,$0f,$07,$12,$01,$0d,$00
+rmtxstr	fcb	$12,$05,$13,$05,$14,$20,$0d,$01,$03,$08,$09,$0e,$05,$20,$14,$0f
+	fcb	$20,$05,$0e,$04,$20,$10,$12,$0f,$07,$12,$01,$0d,$00
 
 shftstr	fcb	$53,$48,$49,$46,$54,$20,$03,$08,$01,$0e,$07,$05,$13,$20,$14,$09
 	fcb	$0d,$09,$0e,$07,$3a,$00
