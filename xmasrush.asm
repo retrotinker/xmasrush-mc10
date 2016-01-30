@@ -764,19 +764,19 @@ snw1m.4	pshb
 
 	ldd	snw2pos
 	cmpa	,x
-	bne	snw1m.6
+	bne	snw1m.w
 	cmpb	1,x
-	bne	snw1m.6
+	bne	snw1m.w
 	bra	snw1m.5
 
-	ldd	snw3pos
+snw1m.w	ldd	snw3pos
 	cmpa	,x
-	bne	snw1m.6
+	bne	snw1m.x
 	cmpb	1,x
-	bne	snw1m.6
+	bne	snw1m.x
 	bra	snw1m.5
 
-	ldd	snw4pos
+snw1m.x	ldd	snw4pos
 	cmpa	,x
 	bne	snw1m.6
 	cmpb	1,x
@@ -822,19 +822,19 @@ snw1m.a	pshb
 
 	ldd	snw2pos
 	cmpa	,x
-	bne	snw1m.c
+	bne	snw1m.y
 	cmpb	1,x
-	bne	snw1m.c
+	bne	snw1m.y
 	bra	snw1m.b
 
-	ldd	snw3pos
+snw1m.y	ldd	snw3pos
 	cmpa	,x
-	bne	snw1m.c
+	bne	snw1m.z
 	cmpb	1,x
-	bne	snw1m.c
+	bne	snw1m.z
 	bra	snw1m.b
 
-	ldd	snw4pos
+snw1m.z	ldd	snw4pos
 	cmpa	,x
 	bne	snw1m.c
 	cmpb	1,x
@@ -887,19 +887,19 @@ snw2m.3	pshb
 
 	ldd	snw1pos
 	cmpa	,x
-	bne	snw2m.5
+	bne	snw2m.w
 	cmpb	1,x
-	bne	snw2m.5
+	bne	snw2m.w
 	bra	snw2m.4
 
-	ldd	snw3pos
+snw2m.w	ldd	snw3pos
 	cmpa	,x
-	bne	snw2m.5
+	bne	snw2m.x
 	cmpb	1,x
-	bne	snw2m.5
+	bne	snw2m.x
 	bra	snw2m.4
 
-	ldd	snw4pos
+snw2m.x	ldd	snw4pos
 	cmpa	,x
 	bne	snw2m.5
 	cmpb	1,x
@@ -937,19 +937,19 @@ snw2m.9	pshb
 
 	ldd	snw1pos
 	cmpa	,x
-	bne	snw2m.b
+	bne	snw2m.y
 	cmpb	1,x
-	bne	snw2m.b
+	bne	snw2m.y
 	bra	snw2m.a
 
-	ldd	snw3pos
+snw2m.y	ldd	snw3pos
 	cmpa	,x
-	bne	snw2m.b
+	bne	snw2m.z
 	cmpb	1,x
-	bne	snw2m.b
+	bne	snw2m.z
 	bra	snw2m.a
 
-	ldd	snw4pos
+snw2m.z	ldd	snw4pos
 	cmpa	,x
 	bne	snw2m.b
 	cmpb	1,x
@@ -1016,19 +1016,19 @@ snw3m.5	pshb
 
 	ldd	snw1pos
 	cmpa	,x
-	bne	snw3m.7
+	bne	snw3m.w
 	cmpb	1,x
-	bne	snw3m.7
+	bne	snw3m.w
 	bra	snw3m.6
 
-	ldd	snw2pos
+snw3m.w	ldd	snw2pos
 	cmpa	,x
-	bne	snw3m.7
+	bne	snw3m.x
 	cmpb	1,x
-	bne	snw3m.7
+	bne	snw3m.x
 	bra	snw3m.6
 
-	ldd	snw4pos
+snw3m.x	ldd	snw4pos
 	cmpa	,x
 	bne	snw3m.7
 	cmpb	1,x
@@ -1066,19 +1066,19 @@ snw3m.b	pshb
 
 	ldd	snw1pos
 	cmpa	,x
-	bne	snw3m.d
+	bne	snw3m.y
 	cmpb	1,x
-	bne	snw3m.d
+	bne	snw3m.y
 	bra	snw3m.c
 
-	ldd	snw2pos
+snw3m.y	ldd	snw2pos
 	cmpa	,x
-	bne	snw3m.d
+	bne	snw3m.z
 	cmpb	1,x
-	bne	snw3m.d
+	bne	snw3m.z
 	bra	snw3m.c
 
-	ldd	snw4pos
+snw3m.z	ldd	snw4pos
 	cmpa	,x
 	bne	snw3m.d
 	cmpb	1,x
@@ -1144,19 +1144,19 @@ snw4m.4	pshb
 
 	ldd	snw1pos
 	cmpa	,x
-	bne	snw4m.6
+	bne	snw4m.w
 	cmpb	1,x
-	bne	snw4m.6
+	bne	snw4m.w
 	bra	snw4m.5
 
-	ldd	snw2pos
+snw4m.w	ldd	snw2pos
 	cmpa	,x
-	bne	snw4m.6
+	bne	snw4m.x
 	cmpb	1,x
-	bne	snw4m.6
+	bne	snw4m.x
 	bra	snw4m.5
 
-	ldd	snw3pos
+snw4m.x	ldd	snw3pos
 	cmpa	,x
 	bne	snw4m.6
 	cmpb	1,x
@@ -1204,19 +1204,19 @@ snw4m.a	pshb
 
 	ldd	snw1pos
 	cmpa	,x
-	bne	snw4m.c
+	bne	snw4m.y
 	cmpb	1,x
-	bne	snw4m.c
+	bne	snw4m.y
 	bra	snw4m.b
 
-	ldd	snw2pos
+snw4m.y	ldd	snw2pos
 	cmpa	,x
-	bne	snw4m.c
+	bne	snw4m.z
 	cmpb	1,x
-	bne	snw4m.c
+	bne	snw4m.z
 	bra	snw4m.b
 
-	ldd	snw3pos
+snw4m.z	ldd	snw3pos
 	cmpa	,x
 	bne	snw4m.c
 	cmpb	1,x
